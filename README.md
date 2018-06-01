@@ -1,5 +1,7 @@
 # faviconate
 
+[![Build Status](https://travis-ci.org/menendezpoo/faviconate.svg?branch=master)](https://travis-ci.org/menendezpoo/faviconate)
+
 Oh yes, this is yet another icon editor.
 
 But things are going to change ;)
