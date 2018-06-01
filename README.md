@@ -1,8 +1,8 @@
 # faviconate
 
 [![Build Status](https://travis-ci.org/menendezpoo/faviconate.svg?branch=master)](https://travis-ci.org/menendezpoo/faviconate)
-[![Chat on Gitter](https://badges.gitter.im/gitterHQ/gitter.png)](https://gitter.im/faviconate)
 [![Coverage Status](https://coveralls.io/repos/github/menendezpoo/faviconate/badge.svg?branch=master)](https://coveralls.io/github/menendezpoo/faviconate?branch=master)
+[![Chat on Gitter](https://badges.gitter.im/gitterHQ/gitter.png)](https://gitter.im/faviconate)
 
 Oh yes, this is yet another icon editor.
 
