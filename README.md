@@ -2,6 +2,8 @@
 
 [![Build Status](https://travis-ci.org/menendezpoo/faviconate.svg?branch=master)](https://travis-ci.org/menendezpoo/faviconate)
 
+[![Chat on Gitter](https://badges.gitter.im/gitterHQ/gitter.png)](https://gitter.im/faviconate)
+
 Oh yes, this is yet another icon editor.
 
 But things are going to change ;)
