@@ -8,7 +8,6 @@ Oh yes, this is yet another icon editor.
 
 But things are going to change ;)
 
-
 # To work on this
 - Clone the repo
 - `npm install` to install modules
