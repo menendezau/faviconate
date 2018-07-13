@@ -1,0 +1,64 @@
+body{
+    margin:0;
+    padding: 0;
+    overflow: hidden;
+
+    font-family: sans-serif;
+}
+
+canvas{
+    background: #fff;
+}
+
+.fps{
+    position: fixed;
+    right: 0;
+    top: 0;
+}
+
+input.brightness{
+    position: fixed;
+    top:0;
+    left:0;
+}
+input.brightness{
+    position: fixed;
+    top:0;
+    left:0;
+}
+input.contrast{
+    position: fixed;
+    top:17px;
+    left:0;
+}
+input.size{
+    position: fixed;
+    top:34px;
+    left:0;
+}
+
+.sidebar{
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 300px;
+    border-left: solid 1px silver;
+}
+
+div.slider{
+    margin-bottom: 20px;
+}
+
+div.slider .label{
+
+}
+
+div.slider .value{
+
+}
+
+.selectable.selected{
+    background: deepskyblue;
+    color: white;
+}
