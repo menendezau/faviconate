@@ -180,10 +180,11 @@ export namespace latte{
         return result.join('');
     }
 
-
-
     export type EventHandler = (...any: any[]) => any;
 
+    /**
+     * Base object who supports events
+     */
     export class Eventable{
 
         //region Fields
@@ -226,14 +227,23 @@ export namespace latte{
 
     }
 
+    /**
+     * Data passed on the didSet (property value) events
+     */
     export interface DidSet{
         property: string;
         oldValue: any;
         newValue: any;
     }
 
+    /**
+     * Data passed on the willSet (property value) events
+     */
     export interface WillSet extends DidSet{}
 
+    /**
+     * Options that may be applied to the <c>setPropertyValue</c> method
+     */
     export interface SetPropertyOptions{
         silent?: boolean;
     }
@@ -411,24 +421,6 @@ export namespace latte{
          **/
         static fromHex(hexColor: string): Color{
 
-            if(_isString(hexColor)) {
-                if(hexColor.toLowerCase() == 'white') {
-                    hexColor = '#FFF';
-                }
-
-                if(hexColor.toLowerCase() == 'black') {
-                    hexColor = '#000';
-                }
-
-                if(hexColor.toLowerCase() == 'gray') {
-                    hexColor = '#777';
-                }
-
-                if(hexColor.length == 0) {
-                    hexColor = '#000';
-                }
-            }
-
             // Check is string
             if(!_isString(hexColor) || hexColor.length == 0) throw "Invalid Hex: " + hexColor;
 
@@ -436,7 +428,7 @@ export namespace latte{
             if(hexColor.charAt(0) == '#') hexColor = hexColor.substr(1);
 
             // Check length
-            if(!(hexColor.length == 3 || hexColor.length == 6 || hexColor.length == 9)) throw "Invalid Hex: " + hexColor;
+            if(!(hexColor.length == 3 || hexColor.length == 6 || hexColor.length == 8)) throw "Invalid Hex: " + hexColor;
 
             let c = new latte.Color();
 
@@ -452,7 +444,7 @@ export namespace latte{
                 c.g = (toDecimal(hexColor.charAt(2) + hexColor.charAt(3)));
                 c.b = (toDecimal(hexColor.charAt(4) + hexColor.charAt(5)));
 
-                if(hexColor.length == 9)
+                if(hexColor.length == 8)
                     c.a = (toDecimal(hexColor.charAt(6) + hexColor.charAt(7)));
             }
 
@@ -470,9 +462,9 @@ export namespace latte{
          */
         static cmykToRgb(c: number, m: number, y: number, k: number): number[]{
             return [
-                255 * (1 - c) * (1 - k),
-                255 * (1 - m) * (1 - k),
-                255 * (1 - y) * (1 - k)
+                Math.round(255 * (1 - c) * (1 - k)),
+                Math.round(255 * (1 - m) * (1 - k)),
+                Math.round(255 * (1 - y) * (1 - k))
             ]
         }
 
@@ -480,27 +472,20 @@ export namespace latte{
          * HSV to RGB color conversion
          *
          * H runs from 0 to 360 degrees
-         * S and V run from 0 to 100
+         * S and V run from 0 to 1
          *
          * Ported from the excellent java algorithm by Eugene Vishnevsky at:
          * http://www.cs.rit.edu/~ncs/color/t_convert.html
          */
-        static hsvToRgb(h: number, s: number, v: number) {
-            var r, g, b;
-            var i;
-            var f, p, q, t;
+        static hsvToRgb(h: number, s: number, v: number): number[] {
+            let r, g, b;
+            let i;
+            let f, p, q, t;
 
             // Make sure our arguments stay in-range
             h = Math.max(0, Math.min(360, h));
             s = Math.max(0, Math.min(100, s));
             v = Math.max(0, Math.min(100, v));
-
-            // We accept saturation and value arguments from 0 to 100 because that's
-            // how Photoshop represents those values. Internally, however, the
-            // saturation and value are calculated from a range of 0 to 1. We make
-            // That conversion here.
-            s /= 100;
-            v /= 100;
 
             if(s == 0) {
                 // Achromatic (grey)
@@ -521,31 +506,26 @@ export namespace latte{
                     g = t;
                     b = p;
                     break;
-
                 case 1:
                     r = q;
                     g = v;
                     b = p;
                     break;
-
                 case 2:
                     r = p;
                     g = v;
                     b = t;
                     break;
-
                 case 3:
                     r = p;
                     g = q;
                     b = v;
                     break;
-
                 case 4:
                     r = t;
                     g = p;
                     b = v;
                     break;
-
                 default: // case 5:
                     r = v;
                     g = p;
@@ -584,15 +564,15 @@ export namespace latte{
          * @returns {number[]}
          */
         static rgbToHsv(red: number, green: number, blue: number): number[]{
-            var rr, gg, bb;
-            var r = red / 255;
-            var g = green / 255;
-            var b = blue / 255;
-            var h = 0;
-            var s = 0;
-            var v = Math.max(r, g, b);
-            var diff = v - Math.min(r, g, b);
-            var diffc = (c: number) => { return (v - c) / 6 / diff + 1 / 2 }
+            let rr, gg, bb;
+            let r = red / 255;
+            let g = green / 255;
+            let b = blue / 255;
+            let h = 0;
+            let s = 0;
+            let v = Math.max(r, g, b);
+            let diff = v - Math.min(r, g, b);
+            let diffc = (c: number) => { return (v - c) / 6 / diff + 1 / 2 };
 
             if(diff == 0) {
                 h = s = 0;
@@ -619,8 +599,8 @@ export namespace latte{
 
             return [
                 Math.round(h * 360),
-                Math.round(s * 100),
-                Math.round(v * 100)
+                Math.round(s),
+                Math.round(v)
             ];
         }
 
@@ -665,7 +645,7 @@ export namespace latte{
          */
         static get blue(): Color {
             return PropertyTarget.getStaticLazyProperty('Color', 'blue', () => {
-                return new Color(0, 255, 0);
+                return new Color(0, 0, 255);
             });
         }
 
@@ -679,6 +659,7 @@ export namespace latte{
         }
 
         //endregion
+
         /**
          * Creates the color from the specified RGB and Aplha components.
          **/
@@ -698,7 +679,25 @@ export namespace latte{
          * @returns {boolean}
          */
         equals(c: Color): boolean{
-            return c.r === this.r && c.g === this.g && c.b === this.b;
+            return c.a == this.a && c.r === this.r && c.g === this.g && c.b === this.b;
+        }
+
+        /**
+         * Returns a copy of the color with the specified alpha between 0 and 255.
+         *
+         * @param alpha
+         */
+        fade(alpha: number): Color{
+            return new Color(this.r, this.g, this.b, alpha);
+        }
+
+        /**
+         * Returns a copy of the color with the specified alpha between 0 and 1.
+         *
+         * @param alphaFloat
+         */
+        fadeFloat(alphaFloat: number): Color{
+            return new Color(this.r, this.g, this.b, alphaFloat * 255);
         }
 
         /**
@@ -716,8 +715,12 @@ export namespace latte{
 
         }
 
+        /**
+         * Returns the color in the format: rgba(0, 0, 0, 255)
+         * @returns {string}
+         */
         toRgbString(): string{
-            return "rgba(" + this.r + ", " + this.g + ", " + this.b + ")";
+            return sprintf('rgba(%s, %s, %s, %s)', this.r, this.g, this.b, this.a);
         }
 
         /**
@@ -729,7 +732,7 @@ export namespace latte{
                 return 'transparent';
 
             }else if(this.a != 255){
-                return "rgba(" + this.r + ", " + this.g + ", " + this.b + ", " + this.a + ")";
+                return this.toRgbString();
 
             }else{
                 return this.toHexString();
@@ -783,15 +786,6 @@ export namespace latte{
         }
 
         /**
-         * Gets or sets the Cyan component of the CMKYK namespace
-         *
-         * @returns {number}
-         */
-        set c(value: number){
-            this.r = 255 * (1 - value) * (1 - this.k);
-        }
-
-        /**
          * Gets or sets the green component of the color (0 to 255)
          */
         get g(): number {
@@ -832,25 +826,6 @@ export namespace latte{
          */
         get y():number {
             return (1 - (this.b / 255) - this.k) / (1 - this.k);
-        }
-
-
-        /**
-         * Returns a copy of the color with the specified alpha between 0 and 255.
-         *
-         * @param alpha
-         */
-        fade(alpha: number): Color{
-            return new Color(this.r, this.g, this.b, alpha);
-        }
-
-        /**
-         * Returns a copy of the color with the specified alpha between 0 and 1.
-         *
-         * @param alpha
-         */
-        fadeFloat(alpha: number): Color{
-            return new Color(this.r, this.g, this.b, alpha * 255);
         }
 
         /**
@@ -1865,7 +1840,7 @@ export namespace latte{
     }
 
     /**
-     *
+     * Represents a inmmutable point
      */
     export class Point extends PropertyTarget{
 
@@ -1896,8 +1871,7 @@ export namespace latte{
         }
 
         //endregion
-        //region Fields
-        //endregion
+
         /**
          * Creates a new point, optionally
          */
@@ -1905,17 +1879,16 @@ export namespace latte{
             super();
 
             if(x !== null) {
-                this.x = x;
+                this.setPropertyValue('x', x);
             }
 
             if(y !== null) {
-                this.y = y;
+                this.setPropertyValue('y', y);
             }
         }
 
-        //region Private Methods
-        //endregion
         //region Methods
+
         /**
          * Gets the distance to the specified point
          * @param {latte.Point} p
@@ -1950,12 +1923,11 @@ export namespace latte{
          * @returns {string}
          */
         toString(): string{
-            return sprintf("Point(%s, %s)", this._x, this._y);
+            return sprintf("Point(%s, %s)", this.x, this.y);
         }
 
         //endregion
-        //region Events
-        //endregion
+
         //region Properties
         /**
          * Gets a value indicating if the point is empty (No value has been set)
@@ -1963,39 +1935,21 @@ export namespace latte{
          * @returns {boolean}
          */
         public get isEmpty():boolean {
-            return this._x == null || this._y == null;
+            return this.x == null || this.y == null;
         }
 
         /**
-         * Gets or sets the x coordinate
+         * Gets the x component of the point
          */
         get x(): number {
             return this.getPropertyValue('x', 0);
         }
 
         /**
-         * Gets or sets the x coordinate
-         *
-         * @param {number} value
-         */
-        set x(value: number) {
-            this.setPropertyValue('x', value);
-        }
-
-        /**
-         * Gets or sets the y coordinate
+         * Gets the y component of the point
          */
         get y(): number {
             return this.getPropertyValue('y', 0);
-        }
-
-        /**
-         * Gets or sets the y coordinate
-         *
-         * @param {number} value
-         */
-        set y(value: number) {
-            this.setPropertyValue('y', value);
         }
 
         //endregion
@@ -2004,26 +1958,23 @@ export namespace latte{
     /**
      * Reprsents a Rectangle
      **/
-    export class Rectangle{
+    export class Rectangle extends PropertyTarget{
+
+        //region Static
 
         /**
          * Returns a new empty rectangle
          * @returns {latte.Rectangle}
          */
         static empty(): Rectangle{
-            return new Rectangle();
+            return new Rectangle(null, null, null, null);
         }
 
         /**
          * Creates a rectangle with the specified left, right, top and bottom.
          **/
         static fromLRTB(left: number, right: number, top: number, bottom: number): Rectangle{
-
-            let r = new Rectangle(left, top);
-            r.right = right;
-            r.bottom = bottom;
-            return r;
-
+            return  new Rectangle(left, top, right - left, bottom - top)
         }
 
         /**
@@ -2051,42 +2002,21 @@ export namespace latte{
             return Rectangle.fromObject(e.getBoundingClientRect());
         }
 
-        /**
-         * Height of rectangle
-         **/
-        private _height: number;
-
-        /**
-         * Left of rectangle
-         **/
-        private _left: number;
-
-        /**
-         * Top of rectangle
-         **/
-        private _top: number;
-
-        /**
-         * Width of rectangle
-         **/
-        private _width: number;
-
-        /**
-         *
-         */
-        private _tag: any;
+        //endregion
 
         /**
          * Creates a rectangle with the specified left, top, width and height.
          **/
         constructor(left: number = 0, top: number = 0, width: number = 0, height: number = 0){
-
-            this.top = top;
-            this.left = left;
-            this.width = width;
-            this.height = height;
+            super();
+            this.setPropertyValue('top', top);
+            this.setPropertyValue('left', left);
+            this.setPropertyValue('width', width);
+            this.setPropertyValue('height', height);
 
         }
+
+        //region Methods
 
         /**
          * Returns a rectangle of positive width and height, by changing its coordinates and preserving width and height
@@ -2257,8 +2187,7 @@ export namespace latte{
          * Returns a string describing the rectangle
          **/
         toString(): string{
-
-            return "Rectangle: " + [this._left, this._top, this._width, this._height].join(', ');
+            return "Rectangle: " + [this.left, this.top, this.width, this.height].join(', ');
 
         }
 
@@ -2276,6 +2205,10 @@ export namespace latte{
 
         }
 
+        //endregion
+
+        //region Properties
+
         /**
          * Gets the area of the rectangle
          *
@@ -2290,7 +2223,7 @@ export namespace latte{
          *
          * @returns {number}
          */
-        public get aspectRatio():number {
+        get aspectRatio():number {
             return this.width / this.height;
         }
 
@@ -2298,18 +2231,7 @@ export namespace latte{
          * Gets or sets the right side of the rectangle
          **/
         get bottom(): number{
-            return this._top + this._height;
-        }
-
-        /**
-         * Gets or sets the right side of the rectangle
-         **/
-        set bottom(value: number){
-
-            this._height = value - this._top;
-
-
-
+            return this.top + this.height;
         }
 
         /**
@@ -2321,26 +2243,10 @@ export namespace latte{
         }
 
         /**
-         * Gets or sets the center of the rectangle
-         * @param value
+         * Gets the height of the rectangle
          */
-        set center(value: Point){
-            this.left = value.x - this.width / 2;
-            this.top = value.y - this.height / 2;
-        }
-
-        /**
-         * Gets or sets the height of the rectangle
-         **/
-        get height(): number{
-            return this._height;
-        }
-
-        /**
-         * Gets or sets the height of the rectangle
-         **/
-        set height(value: number){
-            this._height = value;
+        get height(): number {
+            return this.getPropertyValue('height', null);
         }
 
         /**
@@ -2349,7 +2255,7 @@ export namespace latte{
          * @returns {boolean}
          */
         get isEmpty(): boolean {
-            return this.area == 0 && this.left == 0 && this.top == 0;
+            return this.width == null && this.height == null && this.left == null && this.top == null;
         }
 
         /**
@@ -2370,7 +2276,6 @@ export namespace latte{
             return this.width == this.height;
         }
 
-
         /**
          * Gets a value indicating if the rectangle is vertical
          *
@@ -2381,20 +2286,10 @@ export namespace latte{
         }
 
         /**
-         * Gets or sets the left of the rectangle
-         **/
-        get left(): number{
-            return this._left;
-        }
-
-        /**
-         * Gets or sets the left of the rectangle
-         **/
-        set left(value: number){
-
-            this._left = value;
-
-
+         * Gets the left of the rectangle
+         */
+        get left(): number {
+            return this.getPropertyValue('left', null);
         }
 
         /**
@@ -2410,18 +2305,7 @@ export namespace latte{
          * Gets or sets the right side of the rectangle
          **/
         get right(): number{
-            return this._left + this._width;
-        }
-
-        /**
-         * Gets or sets the right side of the rectangle
-         **/
-        set right(value: number){
-
-
-            this._width = value - this._left;
-
-
+            return this.left + this.width;
         }
 
         /**
@@ -2434,56 +2318,37 @@ export namespace latte{
         }
 
         /**
-         * Gets or sets a tag
-         * @returns {any}
+         * Gets or sets the tag of the rectangle
          */
-        get tag(): any{
-            return this._tag;
+        get tag(): any {
+            return this.getPropertyValue('tag', null);
         }
 
         /**
-         * Gets or sets a tag
-         * @param value
+         * Gets or sets the tag of the rectangle
+         *
+         * @param {any} value
          */
-        set tag(value: any){
-            this._tag = value;
+        set tag(value: any) {
+            this.setPropertyValue('tag', value);
         }
 
         /**
-         * Gets or sets the top of the rectangle
-         **/
-        get top(): number{
-            return this._top;
+         * Gets the top of the rectangle
+         */
+        get top(): number {
+            return this.getPropertyValue('top', null);
         }
 
         /**
-         * Gets or sets the top of the rectangle
-         **/
-        set top(value: number){
-
-
-            this._top = value;
-
-
+         * Gets the width of the rectangle
+         */
+        get width(): number {
+            return this.getPropertyValue('width', null);
         }
 
-        /**
-         * Gets or sets the width of the rectangle
-         **/
-        get width(): number{
-            return this._width;
-        }
+        //endregion
 
-        /**
-         * Gets or sets the width of the rectangle
-         **/
-        set width(value: number){
-
-
-            this._width = value;
-
-
-        }
     }
 
     /**
@@ -2509,9 +2374,6 @@ export namespace latte{
         }
         //endregion
 
-        //region Fields
-        //endregion
-
         /**
          * Creates a new Size, optionally sets its Width and Height components
          */
@@ -2526,9 +2388,6 @@ export namespace latte{
                 this.setPropertyValue( 'height', height);
             }
         }
-
-        //region Private Methods
-        //endregion
 
         //region Methods
         /**
@@ -2599,11 +2458,8 @@ export namespace latte{
          * @returns {string}
          */
         toString(): string{
-            return sprintf("Size(%s, %s)", this._width, this._height);
+            return sprintf("Size(%s, %s)", this.width, this.height);
         }
-        //endregion
-
-        //region Events
         //endregion
 
         //region Properties
@@ -2622,7 +2478,7 @@ export namespace latte{
          * @returns {boolean}
          */
         public get isEmpty():boolean {
-            return this._height == null && this._width == null;
+            return this.width == null && this.height == null;
         }
 
         /**
@@ -2656,14 +2512,14 @@ export namespace latte{
          * Gets the height of the size
          */
         get height(): number {
-            return this.getPropertyValue('height', 0);
+            return this.getPropertyValue('height', null);
         }
 
         /**
          * Gets the width of the size
          */
         get width(): number {
-            return this.getPropertyValue('width', 0);
+            return this.getPropertyValue('width', null);
         }
 
 
