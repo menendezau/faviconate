@@ -180,10 +180,214 @@ export namespace latte{
         return result.join('');
     }
 
+
+
+    export type EventHandler = (...any: any[]) => any;
+
+    export class Eventable{
+
+        //region Fields
+        private eventHandlers: {[name: string]: EventHandler[]} = {};
+        //endregion
+
+        //region Methods
+
+        /**
+         * Handles an event
+         * @param {string} eventName
+         * @param {(...any: any[]) => any} handler
+         */
+        on(eventName: string, handler: EventHandler): this{
+
+            if(!(eventName in this.eventHandlers)) {
+                this.eventHandlers[eventName] = [];
+            }
+
+            this.eventHandlers[eventName].push(handler);
+
+            return this;
+        }
+
+        /**
+         * Raises an event
+         * @param {string} eventName
+         * @param params
+         */
+        raise(eventName: string, ...params: any[]){
+
+            if(eventName in this.eventHandlers) {
+                for(let name in this.eventHandlers)
+                    this.eventHandlers[name].forEach( f => f.call(this, params));
+            }
+
+        }
+
+        //endregion
+
+    }
+
+    export interface DidSet{
+        property: string;
+        oldValue: any;
+        newValue: any;
+    }
+
+    export interface WillSet extends DidSet{}
+
+    export interface SetPropertyOptions{
+        silent?: boolean;
+    }
+
+    /**
+     * Gives an object property capabilities
+     */
+    export class PropertyTarget extends Eventable{
+
+        //region Static
+
+        private static staticObjects: {[name: string]: PropertyTarget} = {};
+
+        private static getStaticObject(className: string): PropertyTarget{
+            if(!(className in PropertyTarget.staticObjects)) {
+                PropertyTarget.staticObjects[className] = new PropertyTarget();
+            }
+
+            return PropertyTarget.staticObjects[className];
+        }
+
+        static getStaticPropertyValue(className: string, name: string, withDefault: any = undefined): any{
+            return PropertyTarget.getStaticObject(className).getPropertyValue(name, withDefault);
+        }
+
+        static hasStaticPropertyValue(className: string, name: string): boolean{
+            return PropertyTarget.getStaticObject(className).hasPropertyValue(name);
+        }
+
+        static setStaticPropertyValue<T>(className: string, name: string, value: T, options: SetPropertyOptions): T{
+            return PropertyTarget.getStaticObject(className).setPropertyValue(name, value, options);
+        }
+
+        static getStaticLazyProperty<T>(className: string, name: string, creator: () => T): T{
+            return PropertyTarget.getStaticObject(className).getLazyProperty(name, creator);
+        }
+        //endregion
+
+        //region Private
+        private propertyValues: {[name: string]: any} = {};
+        //endregion
+
+        //region Protected Methods
+
+        /**
+         * Called before changing the value of a property
+         * @param {latte.WillSet} e
+         */
+        protected willSet(e: WillSet){
+            this.raise('willSet' + _camelCase(e.property), e);
+        }
+
+        /**
+         * Called after chaning the value of a property
+         * @param {latte.DidSet} e
+         */
+        protected didSet(e: DidSet){
+            this.raise('didSet' + _camelCase(e.property), e);
+        }
+
+        //endregion
+
+        //region Methods
+
+        /**
+         * Gets the value of a property
+         * @param {string} name
+         * @param withDefault
+         * @returns {any}
+         */
+        protected getPropertyValue(name: string, withDefault: any = undefined):any{
+            if(!(name in this.propertyValues)) {
+                this.propertyValues[name] = withDefault;
+            }
+            return this.propertyValues[name];
+        }
+
+        /**
+         * Gets a property in a lazy fashion
+         * @param {string} name
+         * @param {() => T} creator
+         * @returns {T}
+         */
+        protected getLazyProperty<T>(name: string, creator: () => T): T{
+            if(!(name in this.propertyValues)) {
+                this.propertyValues[name] = creator();
+            }
+            return this.getPropertyValue(name, undefined);
+        }
+
+        /**
+         * Returns a value indicating if there is a value for the specified property
+         * @param {string} name
+         * @returns {boolean}
+         */
+        protected hasPropertyValue(name: string): boolean{
+            return name in this.propertyValues;
+        }
+
+        /**
+         * Sets the value of a property
+         * @param {string} name
+         * @param value
+         */
+        protected setPropertyValue<T>(name: string, value: T, options: SetPropertyOptions = {}): T{
+
+            let oldValue = this.getPropertyValue(name);
+            let data = {
+                property: name,
+                oldValue: oldValue,
+                newValue: value
+            };
+
+            // Let people know this will change
+            this.willSet(data);
+
+            // Check if a true change was done
+            let changed = oldValue !== data.newValue;
+
+            // Only change if different value
+            if(changed) {
+
+                // Actually change the value
+                this.propertyValues[name] = data.newValue;
+
+                // Let people know
+                if(options.silent !== true) {
+                    this.didSet(data);
+                }
+            }
+
+            return value;
+        }
+
+        /**
+         * Sets the values of more than one property
+         * @param {{[p: string]: any}} values
+         * @returns {this}
+         */
+        protected setPropertyValues(values: {[name: string]: any}): this{
+            for(let i in values){
+                this.setPropertyValue(i, values[i]);
+            }
+            return this;
+        }
+
+        //endregion
+
+    }
+
     /**
      * Represents a color
      **/
-    export class Color{
+    export class Color extends PropertyTarget{
 
         //region Static
 
@@ -421,93 +625,57 @@ export namespace latte{
         }
 
         /**
-         * Field for black property.
-         */
-        private static _black:Color;
-
-        /**
          * Gets the black color
          */
-        static get black():Color {
-            if (!this._black) {
-                this._black = new Color(0,0,0);
-            }
-            return this._black;
+        static get black(): Color {
+            return PropertyTarget.getStaticLazyProperty('Color', 'black', () => {
+                return new Color(0,0,0);
+            });
         }
-
-        /**
-         * Field for white property.
-         */
-        private static _white:Color;
 
         /**
          * Gets the white color
          */
-        static get white():Color {
-            if (!this._white) {
-                this._white = new Color(255, 255, 255);
-            }
-            return this._white;
+        static get white(): Color {
+            return PropertyTarget.getStaticLazyProperty('Color', 'white', () => {
+                return new Color(255, 255, 255);
+            });
         }
-
-        /**
-         * Field for red property.
-         */
-        private static _red:Color;
 
         /**
          * Gets the red color
          */
-        static get red():Color {
-            if (!this._red) {
-                this._red = new Color(255, 0, 0);
-            }
-            return this._red;
+        static get red(): Color {
+            return PropertyTarget.getStaticLazyProperty('Color', 'red', () => {
+                return new Color(255, 0, 0);
+            });
         }
-
-        /**
-         * Field for green property.
-         */
-        private static _green:Color;
 
         /**
          * Gets the green color
          */
-        static get green():Color {
-            if (!this._green) {
-                this._green = new Color(0, 128, 0);
-            }
-            return this._green;
+        static get green(): Color {
+            return PropertyTarget.getStaticLazyProperty('Color', 'green', () => {
+                return new Color(0, 128, 0);
+            });
         }
-
-        /**
-         * Field for blue property.
-         */
-        private static _blue:Color;
 
         /**
          * Gets the blue color
          */
-        static get blue():Color {
-            if (!this._blue) {
-                this._blue = new Color(0, 0, 255);
-            }
-            return this._blue;
+        static get blue(): Color {
+            return PropertyTarget.getStaticLazyProperty('Color', 'blue', () => {
+                return new Color(0, 255, 0);
+            });
         }
-
-        /**
-         * Field for transparent property.
-         */
-        private static _transparent:Color;
 
         /**
          * Gets the transparent color
          */
-        static get transparent():Color {
-            if (!this._transparent) {
-                this._transparent = new Color(0, 0, 0, 0);
-            }
-            return this._transparent;
+        static get transparent(): Color {
+            return PropertyTarget.getStaticLazyProperty('Color', 'transparent', () => {
+                return new Color(0,0,0,0);
+            });
         }
 
         //endregion
@@ -515,7 +683,7 @@ export namespace latte{
          * Creates the color from the specified RGB and Aplha components.
          **/
         constructor(r: number = 0, g: number = 0, b: number = 0, a: number = 255){
-
+            super();
             this.r = r;
             this.g = g;
             this.b = b;
@@ -523,6 +691,16 @@ export namespace latte{
         }
 
         //region Methods
+
+        /**
+         * Returns a value indicating if the color is equals to the one specified by the parameter
+         * @param {latte.Color} c
+         * @returns {boolean}
+         */
+        equals(c: Color): boolean{
+            return c.r === this.r && c.g === this.g && c.b === this.b;
+        }
+
         /**
          * Returns the color as a hex string
          **/
@@ -562,46 +740,37 @@ export namespace latte{
         //endregion
 
         //region Properties
-        /**
-         *
-         **/
-        private _a: number = 255;
 
         /**
-         * Gets r sets the Alpha component of color, from 0 to 255
-         * @returns {number}
+         * Gets or sets the alpha component (0 to 255)
          */
-        get a(): number{
-            return this._a;
+        get a(): number {
+            return this.getPropertyValue('a', 255);
         }
 
         /**
-         * Gets or sets the Aplha component of color, from 0 to 255.
-         **/
-        set a(value: number){
-            this._a = value;
-        }
-
-        /**
+         * Gets or sets the alpha component (0 to 255)
          *
-         **/
-        private _b: number;
-
-        /**
-         * Gets or sets the Blue component of color, from 0 to 255.
-         **/
-        get b(): number{
-
-            return this._b;
-
+         * @param {number} value
+         */
+        set a(value: number) {
+            this.setPropertyValue('a', value);
         }
 
         /**
-         * Gets or sets the Blue component of color, from 0 to 255.
-         **/
-        set b(value: number){
-            if(value < 0 || value > 255) throw "Invalid Blue";
-            this._b = value;
+         * Gets or sets the blue component (0 to 255)
+         */
+        get b(): number {
+            return this.getPropertyValue('b', 0);
+        }
+
+        /**
+         * Gets or sets the blue component (0 to 255)
+         *
+         * @param {number} value
+         */
+        set b(value: number) {
+            this.setPropertyValue('b', value);
         }
 
         /**
@@ -623,25 +792,19 @@ export namespace latte{
         }
 
         /**
-         *
-         **/
-        private _g: number;
-
-        /**
-         * Gets or sets the Green component of color, from 0 to 255.
-         **/
-        get g(): number{
-
-            return this._g;
-
+         * Gets or sets the green component of the color (0 to 255)
+         */
+        get g(): number {
+            return this.getPropertyValue('g', 0);
         }
 
         /**
-         * Gets or sets the Green component of color, from 0 to 255.
-         **/
-        set g(value: number){
-            if(value < 0 || value > 255) throw "Invalid Green";
-            this._g = value;
+         * Gets or sets the green component of the color (0 to 255)
+         *
+         * @param {number} value
+         */
+        set g(value: number) {
+            this.setPropertyValue('g', value);
         }
 
         /**
@@ -730,27 +893,19 @@ export namespace latte{
         }
 
         /**
-         *
-         **/
-        private _r: number;
-
-        /**
-         * Gets or sets the Red component of color, from 0 to 255.
-         **/
-        get r(): number{
-
-            return this._r;
-
+         * Gets or sets the red component of the color (0 to 255)
+         */
+        get r(): number {
+            return this.getPropertyValue('r', 0);
         }
 
         /**
-         * Gets or sets the Red component of color, from 0 to 255.
-         **/
-        set r(value: number){
-            if(value < 0 || value > 255) throw "Invalid Red";
-
-            this._r = value;
-
+         * Gets or sets the red component of the color (0 to 255)
+         *
+         * @param {number} value
+         */
+        set r(value: number) {
+            this.setPropertyValue('r', value);
         }
         //endregion
     }
@@ -1712,7 +1867,7 @@ export namespace latte{
     /**
      *
      */
-    export class Point {
+    export class Point extends PropertyTarget{
 
         //region Static
         /**
@@ -1747,12 +1902,14 @@ export namespace latte{
          * Creates a new point, optionally
          */
         constructor(x: number = null, y: number = null) {
+            super();
+
             if(x !== null) {
-                this._x = x;
+                this.x = x;
             }
 
             if(y !== null) {
-                this._y = y;
+                this.y = y;
             }
         }
 
@@ -1809,19 +1966,11 @@ export namespace latte{
             return this._x == null || this._y == null;
         }
 
-
-        /**
-         * Property field
-         */
-        private _x: number = null;
-
         /**
          * Gets or sets the x coordinate
-         *
-         * @returns {number}
          */
         get x(): number {
-            return this._x;
+            return this.getPropertyValue('x', 0);
         }
 
         /**
@@ -1830,21 +1979,14 @@ export namespace latte{
          * @param {number} value
          */
         set x(value: number) {
-            this._x = value;
+            this.setPropertyValue('x', value);
         }
 
         /**
-         * Property field
-         */
-        private _y: number = null;
-
-        /**
          * Gets or sets the y coordinate
-         *
-         * @returns {number}
          */
         get y(): number {
-            return this._y;
+            return this.getPropertyValue('y', 0);
         }
 
         /**
@@ -1853,7 +1995,7 @@ export namespace latte{
          * @param {number} value
          */
         set y(value: number) {
-            this._y = value;
+            this.setPropertyValue('y', value);
         }
 
         //endregion
@@ -2347,7 +2489,7 @@ export namespace latte{
     /**
      *
      */
-    export class Size {
+    export class Size extends PropertyTarget{
 
         //region Static
         /**
@@ -2374,12 +2516,14 @@ export namespace latte{
          * Creates a new Size, optionally sets its Width and Height components
          */
         constructor(width: number = null, height: number = null) {
+            super();
+
             if(width !== null) {
-                this._width = width;
+                this.setPropertyValue('width', width);
             }
 
             if(height !== null) {
-                this._height = height;
+                this.setPropertyValue( 'height', height);
             }
         }
 
@@ -2472,7 +2616,6 @@ export namespace latte{
             return this.width * this.height;
         }
 
-
         /**
          * Gets a value indicating if the size has no compnents assigned or initialized
          *
@@ -2500,7 +2643,6 @@ export namespace latte{
             return this.width == this.height;
         }
 
-
         /**
          * Gets a value indicating if the size is vertical
          *
@@ -2510,210 +2652,22 @@ export namespace latte{
             return this.height > this.width;
         }
 
-
         /**
-         * Property field
+         * Gets the height of the size
          */
-        private _height:number = null;
-
-        /**
-         * Gets the Height component of the size
-         *
-         * @returns {number}
-         */
-        public get height():number {
-            return this._height;
+        get height(): number {
+            return this.getPropertyValue('height', 0);
         }
 
         /**
-         * Property field
+         * Gets the width of the size
          */
-        private _width:number = null;
-
-        /**
-         * Gets the Width component of the size
-         *
-         * @returns {number}
-         */
-        public get width():number {
-            return this._width;
+        get width(): number {
+            return this.getPropertyValue('width', 0);
         }
 
 
         //endregion
-    }
-
-    export type EventHandler = (...any: any[]) => any;
-
-    export class Eventable{
-
-        //region Fields
-        private eventHandlers: {[name: string]: EventHandler[]} = {};
-        //endregion
-
-        //region Methods
-
-        /**
-         * Handles an event
-         * @param {string} eventName
-         * @param {(...any: any[]) => any} handler
-         */
-        on(eventName: string, handler: EventHandler): this{
-
-            if(!(eventName in this.eventHandlers)) {
-                this.eventHandlers[eventName] = [];
-            }
-
-            this.eventHandlers[eventName].push(handler);
-
-            return this;
-        }
-
-        /**
-         * Raises an event
-         * @param {string} eventName
-         * @param params
-         */
-        raise(eventName: string, ...params: any[]){
-
-            if(eventName in this.eventHandlers) {
-                for(let name in this.eventHandlers)
-                    this.eventHandlers[name].forEach( f => f.call(this, params));
-            }
-
-        }
-
-        //endregion
-
-    }
-
-    export interface DidSet{
-        property: string;
-        oldValue: any;
-        newValue: any;
-    }
-
-    export interface WillSet extends DidSet{}
-
-    export interface SetPropertyOptions{
-        silent?: boolean;
-    }
-
-    /**
-     * Gives an object property capabilities
-     */
-    export class PropertyTarget extends Eventable{
-
-        //region Private
-        private propertyValues: {[name: string]: any} = {};
-        //endregion
-
-        //region Protected Methods
-
-        /**
-         * Called before changing the value of a property
-         * @param {latte.WillSet} e
-         */
-        protected willSet(e: WillSet){
-            this.raise('willSet' + _camelCase(e.property), e);
-        }
-
-        /**
-         * Called after chaning the value of a property
-         * @param {latte.DidSet} e
-         */
-        protected didSet(e: DidSet){
-            this.raise('didSet' + _camelCase(e.property), e);
-        }
-
-        //endregion
-
-        //region Methods
-
-        /**
-         * Gets the value of a property
-         * @param {string} name
-         * @param withDefault
-         * @returns {any}
-         */
-        protected getPropertyValue(name: string, withDefault: any = undefined):any{
-            if(!(name in this.propertyValues)) {
-                this.propertyValues[name] = withDefault;
-            }
-            return this.propertyValues[name];
-        }
-
-        /**
-         * Gets a property in a lazy fashion
-         * @param {string} name
-         * @param {() => T} creator
-         * @returns {T}
-         */
-        protected getLazyProperty<T>(name: string, creator: () => T): T{
-            if(!(name in this.propertyValues)) {
-                this.propertyValues[name] = creator();
-            }
-            return this.getPropertyValue(name, undefined);
-        }
-
-        /**
-         * Returns a value indicating if there is a value for the specified property
-         * @param {string} name
-         * @returns {boolean}
-         */
-        protected hasPropertyValue(name: string): boolean{
-            return name in this.propertyValues;
-        }
-
-        /**
-         * Sets the value of a property
-         * @param {string} name
-         * @param value
-         */
-        protected setPropertyValue<T>(name: string, value: T, options: SetPropertyOptions = {}): T{
-
-            let oldValue = this.getPropertyValue(name);
-            let data = {
-                property: name,
-                oldValue: oldValue,
-                newValue: value
-            };
-
-            // Let people know this will change
-            this.willSet(data);
-
-            // Check if a true change was done
-            let changed = oldValue !== data.newValue;
-
-            // Only change if different value
-            if(changed) {
-
-                // Actually change the value
-                this.propertyValues[name] = data.newValue;
-
-                // Let people know
-                if(options.silent !== true) {
-                    this.didSet(data);
-                }
-            }
-
-            return value;
-        }
-
-        /**
-         * Sets the values of more than one property
-         * @param {{[p: string]: any}} values
-         * @returns {this}
-         */
-        protected setPropertyValues(values: {[name: string]: any}): this{
-            for(let i in values){
-                this.setPropertyValue(i, values[i]);
-            }
-            return this;
-        }
-
-        //endregion
-
     }
 
 }

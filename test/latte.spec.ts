@@ -13,6 +13,9 @@ import _undef = latte._undef;
 import _repeat = latte._repeat;
 import _zeroPad = latte._zeroPad;
 import _zeroFill = latte._zeroFill;
+import log = latte.log;
+import sprintf = latte.sprintf;
+import Color = latte.Color;
 
 describe('Global Functions', function () {
 
@@ -117,6 +120,63 @@ describe('Global Functions', function () {
         expect(_zeroFill(3, 9)).to.be.equals('009');
         expect(_zeroFill(3, 100)).to.be.equals('100');
         expect(_zeroFill(5, 100)).to.be.equals('00100');
+    });
+
+    it('log', () => {
+        expect(log('hi')).to.be.undefined;
+        expect(log('hi', 'this', 'is', 'me')).to.be.undefined;
+    });
+
+    it('sprintf', () => {
+        expect(sprintf('%s', 'a')).to.be.equals('a');
+        expect(sprintf('hi %s', 'you')).to.be.equals('hi you');
+        expect(sprintf('100% %s', 'sure')).to.be.equals('100% sure');
+        expect(sprintf('%s%', 100)).to.be.equals('100%');
+    });
+
+});
+
+describe('Color', function () {
+
+    it('Constructor', () => {
+        let c = new Color(255, 255, 255);
+        expect(c.r).to.be.equals(255);
+        expect(c.g).to.be.equals(255);
+        expect(c.b).to.be.equals(255);
+    });
+
+    it('combine', function () {
+        let c = Color.combine(Color.black, Color.white);
+        expect(c.r).to.be.equals(128);
+        expect(c.g).to.be.equals(128);
+        expect(c.b).to.be.equals(128);
+    });
+
+    it('should fromHex', function () {
+        expect(Color.fromHex('000').equals(Color.black)).to.be.true;
+        expect(Color.fromHex('fff').equals(Color.white)).to.be.true;
+        expect(Color.fromHex('f00').equals(Color.red)).to.be.true;
+        expect(Color.fromHex('00f').equals(Color.blue)).to.be.true;
+
+        expect(Color.fromHex('000000').equals(Color.black)).to.be.true;
+        expect(Color.fromHex('0000ff').equals(Color.blue)).to.be.true;
+
+        expect(Color.fromHex('#ffffff').equals(Color.white)).to.be.true;
+        expect(Color.fromHex('#FFFFFF').equals(Color.white)).to.be.true;
+        expect(Color.fromHex('#FFffFF').equals(Color.white)).to.be.true;
+        expect(Color.fromHex('#fFfFfF').equals(Color.white)).to.be.true;
+        expect(Color.fromHex('#0000ff').equals(Color.blue)).to.be.true;
+
+    });
+
+    it('should toHex', function () {
+        expect(Color.white.toHexString()).to.be.equals('#ffffff');
+        expect(Color.red.toHexString()).to.be.equals('#ff0000');
+    });
+
+    it('should toString', function () {
+        expect(Color.transparent.toString()).to.be.equals('transparent');
+        expect(Color.red.fade(100).toString()).to.be.equals('rgba(255, 0, 0, 100)');
     });
 
 });
