@@ -153,6 +153,30 @@ export namespace icon{
         }
 
         static legoPalette(): Color[]{
+            let pal = [
+                Color.white,
+                Color.red,
+                Color.blue,
+                Color.fromHex('ff0'),
+                Color.black,
+                Color.fromHex('2bc114'), //green
+                Color.fromHex('d9c285'), //sand
+                Color.fromHex('1b3c71'), //navy
+                Color.fromHex('555'),
+                Color.fromHex('bbb'),
+                Color.fromHex('51311a'), //brown
+                Color.fromHex('fd9330'), //orange
+                Color.combine(Color.fromHex('ccc'), Color.red),
+                Color.combine(Color.fromHex('ccc'), Color.blue),
+                Color.combine(Color.fromHex('ccc'), Color.fromHex('ff0')),
+                Color.combine(Color.fromHex('ccc'), Color.fromHex('2bc114')),
+                Color.combine(Color.fromHex('ccc'), Color.fromHex('fd9330')),
+            ];
+            log(pal.map(c => c.toHexString()));
+            return pal;
+        }
+
+        static legoPalette_TooLarge(): Color[]{
             return [
                 new Color(217, 187, 123),
                 new Color(214, 114, 64),
@@ -216,7 +240,7 @@ export namespace icon{
         }
 
         //region Private Methods
-        private colorStatistics(p: Color[]): {[color: string]: number}{
+        colorStatistics(p: Color[]): {[color: string]: number}{
 
             let zero = (color: Color):string => {
                 return _zeroFill(3, color.r) + _zeroFill(3, color.g) + _zeroFill(3, color.b)

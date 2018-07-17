@@ -596,6 +596,7 @@ export namespace workspace{
                 value:  value
             });
             this.setPropertyValue('value', String(value), {silent: true});
+            this.divValue.html = String(value);
             return this;
         }
 

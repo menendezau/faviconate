@@ -121,6 +121,14 @@ define(["require", "exports"], function (require, exports) {
                 this.b = b;
                 this.a = a;
             }
+            Color.combine = function () {
+                var colors = [];
+                for (var _i = 0; _i < arguments.length; _i++) {
+                    colors[_i] = arguments[_i];
+                }
+                var avg = function (nums) { return Math.round(nums.reduce(function (acc, cur) { return cur + acc; }) / nums.length); };
+                return new Color(avg(colors.map(function (c) { return c.r; })), avg(colors.map(function (c) { return c.g; })), avg(colors.map(function (c) { return c.b; })));
+            };
             Color.fromHex = function (hexColor) {
                 if (_isString(hexColor)) {
                     if (hexColor.toLowerCase() == 'white') {

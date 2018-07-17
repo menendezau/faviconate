@@ -118,6 +118,29 @@ define(["require", "exports", "./latte", "./workspace", "./imageutil"], function
                 return icon;
             };
             Icon.legoPalette = function () {
+                var pal = [
+                    Color.white,
+                    Color.red,
+                    Color.blue,
+                    Color.fromHex('ff0'),
+                    Color.black,
+                    Color.fromHex('2bc114'),
+                    Color.fromHex('d9c285'),
+                    Color.fromHex('1b3c71'),
+                    Color.fromHex('555'),
+                    Color.fromHex('bbb'),
+                    Color.fromHex('51311a'),
+                    Color.fromHex('fd9330'),
+                    Color.combine(Color.fromHex('ccc'), Color.red),
+                    Color.combine(Color.fromHex('ccc'), Color.blue),
+                    Color.combine(Color.fromHex('ccc'), Color.fromHex('ff0')),
+                    Color.combine(Color.fromHex('ccc'), Color.fromHex('2bc114')),
+                    Color.combine(Color.fromHex('ccc'), Color.fromHex('fd9330')),
+                ];
+                log(pal.map(function (c) { return c.toHexString(); }));
+                return pal;
+            };
+            Icon.legoPalette_TooLarge = function () {
                 return [
                     new Color(217, 187, 123),
                     new Color(214, 114, 64),

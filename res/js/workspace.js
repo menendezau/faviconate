@@ -367,6 +367,7 @@ define(["require", "exports", "./ui", "./viewport", "./latte"], function (requir
                     value: value
                 });
                 this.setPropertyValue('value', String(value), { silent: true });
+                this.divValue.html = String(value);
                 return this;
             };
             Slider.prototype.didSet = function (e) {

@@ -8,6 +8,11 @@ export namespace latte{
      */
     export function _camelCase(s: string): string{
 
+        let nextUpper = true;
+        let result = "";
+        let skip = false;
+
+
         if(s == null) {
             s = '';
         }
@@ -18,7 +23,30 @@ export namespace latte{
             return s;
         }
 
-        return s.substr(0, 1).toUpperCase() + s.substr(1);
+        for(let i = 0; i < s.length; i++){
+            if(skip) {
+                skip = false;
+                nextUpper = true;
+                continue;
+            }else if(nextUpper) {
+                nextUpper = false;
+                result += s.charAt(i).toUpperCase();
+                continue;
+            }else{
+                result += s.charAt(i);
+            }
+
+            if(i < s.length - 1) {
+                let chr = s.charAt(i + 1);
+
+                if(chr == ' ' || chr == '_') {
+                    skip = true;
+                }
+            }
+
+        }
+
+        return result;
     }
 
     /**
@@ -97,6 +125,8 @@ export namespace latte{
      **/
     export function _zeroPad(n: number): string{
 
+        n = n || 0;
+
         return n <= 9 ? '0' + n.toString() : n.toString();
 
     }
@@ -107,7 +137,7 @@ export namespace latte{
      * @returns {string}
      * @private
      */
-    export function _zeroFill(positions: number = 3,n: number,  chr: string = '0'): string{
+    export function _zeroFill(positions: number = 2,n: number,  chr: string = '0'): string{
         let s = String(n);
         let zeros = positions - s.length; if(zeros < 0) zeros = 0;
         let acc = '';
@@ -132,9 +162,9 @@ export namespace latte{
      * sprintf for only %s strings
      */
     export function sprintf(...any: any[]){
-        var arg = 1, format = arguments[0], cur, next, result = [];
+        let arg = 1, format = arguments[0], cur, next, result = [];
 
-        for(var i = 0; i < format.length; i++){
+        for(let i = 0; i < format.length; i++){
 
             cur = format.substr(i, 1);
             next = i == format.length - 1 ? '' : format.substr(i + 1, 1);
@@ -156,6 +186,21 @@ export namespace latte{
     export class Color{
 
         //region Static
+
+        /**
+         * Returns a combination of the specified colors
+         * @param {latte.Color} colors
+         * @returns {latte.Color}
+         */
+        static combine(...colors: Color[]): Color{
+            let avg = (nums: number[]): number => Math.round(nums.reduce((acc, cur) => cur + acc) / nums.length);
+            return new Color(
+                avg(colors.map(c => c.r)),
+                avg(colors.map(c => c.g)),
+                avg(colors.map(c => c.b)),
+            );
+        }
+
         /**
          * Creates a color from the hexadecimal value.
          * It may contain the <c>#</c> symbol at the beginning of the string.
