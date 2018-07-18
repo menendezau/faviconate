@@ -17,6 +17,10 @@ import log = latte.log;
 import sprintf = latte.sprintf;
 import Color = latte.Color;
 import Eventable = latte.Eventable;
+import PropertyTarget = latte.PropertyTarget;
+import WillSet = latte.WillSet;
+import DidSet = latte.DidSet;
+import DateTime = latte.DateTime;
 
 describe('Global Functions', function () {
 
@@ -160,6 +164,133 @@ describe('Eventable', function(){
         e.on(name, f);
         e.raise(name);
         expect(flag).to.be.equals(3);
+    });
+
+});
+
+describe('PropertyTarget', function(){
+
+    it('should get & set properties', function () {
+
+        class a extends PropertyTarget{
+
+            static get someStatic(): string {
+                return PropertyTarget.getStaticPropertyValue(a, 'someStatic', 'sdef');
+            }
+
+            static set someStatic(value: string) {
+                PropertyTarget.setStaticPropertyValue(a, 'someStatic', value);
+            }
+
+            static get hasSomeStatic(): boolean {
+                return PropertyTarget.hasStaticPropertyValue(a, 'someStatic');
+            }
+
+            get hasName(): boolean {
+                return this.hasPropertyValue('name');
+            }
+
+            get name(): string {
+                return this.getPropertyValue('name', 'defname');
+            }
+
+            set name(value: string) {
+                this.setPropertyValue('name', value);
+            }
+
+            setValues(s: string){
+                this.setPropertyValues({
+                    'name': s
+                });
+            }
+
+        }
+
+        expect(a.hasSomeStatic).to.be.false;
+
+        expect(a.someStatic).to.be.equals('sdef');
+
+        a.someStatic = 'abc';
+
+        expect(a.someStatic).to.be.equals('abc');
+
+        let p = new a();
+
+        expect(p.hasName).to.be.false;
+
+        expect(p.name).to.be.equals('defname');
+
+        p.name = 'joe';
+
+        expect(p.name).to.be.equals('joe');
+
+        p.setValues('doe');
+
+        expect(p.name).to.be.equals('doe');
+
+    });
+
+    it('should trigger willSet & didSet', function () {
+
+        class A extends PropertyTarget{
+
+            public willSetCall: DateTime = null;
+            public didSetCall: DateTime = null;
+
+            didSet(e: DidSet){
+                super.didSet(e);
+
+                if (e.property == 'name'){
+                    this.didSetCall = DateTime.now;
+                }
+
+            }
+
+            willSet(e: WillSet){
+                super.willSet(e);
+
+                if (e.property == 'name'){
+                    this.willSetCall = DateTime.now;
+                    e.newValue = 'fixed';
+                }
+
+            }
+
+            get name(): string {
+                return this.getPropertyValue('name', 'defname');
+            }
+
+            set name(value: string) {
+                this.setPropertyValue('name', value);
+            }
+
+        }
+
+        let a = new A();
+        let willFlag = false;
+        let willValue = '';
+        let didFlag = false;
+        let didValue = '';
+
+        a.on('willSetName', (w: WillSet) => {
+            willFlag = true;
+            if(!willValue) willValue = w.newValue;
+        });
+        a.on('didSetName', (d: DidSet) => {
+            didFlag = true;
+            didValue = d.newValue;
+        });
+
+        expect(a.name).to.be.equals('defname');
+
+        a.name = 'john';
+
+        expect(a.name).to.be.equals('fixed');
+        expect(willFlag).to.be.true;
+        expect(didFlag).to.be.true;
+        expect(willValue).to.be.equals('john');
+        expect(didValue).to.be.equals('fixed');
+
     });
 
 });

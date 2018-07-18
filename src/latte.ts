@@ -218,7 +218,7 @@ export namespace latte{
 
             if(eventName in this.eventHandlers) {
                 for(let name in this.eventHandlers)
-                    this.eventHandlers[name].forEach( f => f.call(this, params));
+                    this.eventHandlers[name].forEach( f => f.apply(this, params));
             }
 
         }
@@ -255,29 +255,28 @@ export namespace latte{
 
         //region Static
 
-        private static staticObjects: {[name: string]: PropertyTarget} = {};
+        private static staticProperties: PropertyTarget;
 
-        private static getStaticObject(className: string): PropertyTarget{
-            if(!(className in PropertyTarget.staticObjects)) {
-                PropertyTarget.staticObjects[className] = new PropertyTarget();
+        private static getStaticObject(eventObj: any): PropertyTarget{
+            if(!('staticProperties' in eventObj)) {
+                eventObj.staticProperties = new PropertyTarget();
             }
-
-            return PropertyTarget.staticObjects[className];
+            return eventObj.staticProperties;
         }
 
-        static getStaticPropertyValue(className: string, name: string, withDefault: any = undefined): any{
-            return PropertyTarget.getStaticObject(className).getPropertyValue(name, withDefault);
+        static getStaticPropertyValue(classObj: any, name: string, withDefault: any = undefined): any{
+            return PropertyTarget.getStaticObject(classObj).getPropertyValue(name, withDefault);
         }
 
-        static hasStaticPropertyValue(className: string, name: string): boolean{
+        static hasStaticPropertyValue(className: any, name: string): boolean{
             return PropertyTarget.getStaticObject(className).hasPropertyValue(name);
         }
 
-        static setStaticPropertyValue<T>(className: string, name: string, value: T, options: SetPropertyOptions): T{
+        static setStaticPropertyValue<T>(className: any, name: string, value: T, options: SetPropertyOptions = {}): T{
             return PropertyTarget.getStaticObject(className).setPropertyValue(name, value, options);
         }
 
-        static getStaticLazyProperty<T>(className: string, name: string, creator: () => T): T{
+        static getStaticLazyProperty<T>(className: any, name: string, creator: () => T): T{
             return PropertyTarget.getStaticObject(className).getLazyProperty(name, creator);
         }
         //endregion
@@ -608,7 +607,7 @@ export namespace latte{
          * Gets the black color
          */
         static get black(): Color {
-            return PropertyTarget.getStaticLazyProperty('Color', 'black', () => {
+            return PropertyTarget.getStaticLazyProperty(Color, 'black', () => {
                 return new Color(0,0,0);
             });
         }
@@ -617,7 +616,7 @@ export namespace latte{
          * Gets the white color
          */
         static get white(): Color {
-            return PropertyTarget.getStaticLazyProperty('Color', 'white', () => {
+            return PropertyTarget.getStaticLazyProperty(Color, 'white', () => {
                 return new Color(255, 255, 255);
             });
         }
@@ -626,7 +625,7 @@ export namespace latte{
          * Gets the red color
          */
         static get red(): Color {
-            return PropertyTarget.getStaticLazyProperty('Color', 'red', () => {
+            return PropertyTarget.getStaticLazyProperty(Color, 'red', () => {
                 return new Color(255, 0, 0);
             });
         }
@@ -635,7 +634,7 @@ export namespace latte{
          * Gets the green color
          */
         static get green(): Color {
-            return PropertyTarget.getStaticLazyProperty('Color', 'green', () => {
+            return PropertyTarget.getStaticLazyProperty(Color, 'green', () => {
                 return new Color(0, 128, 0);
             });
         }
@@ -644,7 +643,7 @@ export namespace latte{
          * Gets the blue color
          */
         static get blue(): Color {
-            return PropertyTarget.getStaticLazyProperty('Color', 'blue', () => {
+            return PropertyTarget.getStaticLazyProperty(Color, 'blue', () => {
                 return new Color(0, 0, 255);
             });
         }
@@ -653,7 +652,7 @@ export namespace latte{
          * Gets the transparent color
          */
         static get transparent(): Color {
-            return PropertyTarget.getStaticLazyProperty('Color', 'transparent', () => {
+            return PropertyTarget.getStaticLazyProperty(Color, 'transparent', () => {
                 return new Color(0,0,0,0);
             });
         }
