@@ -946,11 +946,15 @@ export namespace latte{
          **/
         static fromString(timeString: string): TimeSpan{
 
+            let parts = timeString.split(':');
 
-            var parts = timeString.split(':');
-            var hours = parts.length > 0 && _isNumeric(parts[0]) ? parseInt(parts[0], 10) : 0;
-            var minutes = parts.length > 1 && _isNumeric(parts[1]) ? parseInt(parts[1], 10) : 0;
-            var seconds = parts.length > 2 && _isNumeric(parts[2]) ? parseInt(parts[2], 10) : 0;
+            if(parts.length < 2 || parts.length > 3) {
+                throw "Wrong format"
+            }
+
+            let hours = parts.length > 0 && _isNumeric(parts[0]) ? parseInt(parts[0], 10) : 0;
+            let minutes = parts.length > 1 && _isNumeric(parts[1]) ? parseInt(parts[1], 10) : 0;
+            let seconds = parts.length > 2 && _isNumeric(parts[2]) ? parseInt(parts[2], 10) : 0;
 
             return new TimeSpan(0, hours, minutes, seconds);
 
@@ -1037,15 +1041,6 @@ export namespace latte{
             if(this.millis  < timespan.millis) return -1;
 
             throw "?";
-
-        }
-
-        /**
-         * Returns a timespan representing the actual duration of the timespan
-         **/
-        duration(): TimeSpan{
-
-            return new TimeSpan(Math.abs(this.millis));
 
         }
 

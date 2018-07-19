@@ -21,6 +21,7 @@ import PropertyTarget = latte.PropertyTarget;
 import WillSet = latte.WillSet;
 import DidSet = latte.DidSet;
 import DateTime = latte.DateTime;
+import TimeSpan = latte.TimeSpan;
 
 describe('Global Functions', function () {
 
@@ -426,6 +427,71 @@ describe('Color', function () {
     it('should fade', function () {
         expect(Color.black.fade(100).a).to.be.equals(100);
         expect(Color.black.fadeFloat(0.5).a).to.be.equals(127.5);
+    });
+
+});
+
+describe('TimeSpan', function(){
+
+    let epoch = () => new Date().getTime();
+    let fromEpoch = (e: number) => DateTime.fromMilliseconds(e);
+
+    it('should manufacture', function () {
+        expect(TimeSpan.fromDays(1).totalMilliseconds).to.be.equals(24 * 60 * 60 * 1000);
+        expect(TimeSpan.fromHours(1).totalMilliseconds).to.be.equals(60 * 60 * 1000);
+        expect(TimeSpan.fromMinutes(1).totalMilliseconds).to.be.equals(60 * 1000);
+        expect(TimeSpan.fromSeconds(1).totalMilliseconds).to.be.equals(1000);
+        expect(TimeSpan.fromMilliseconds(1).totalMilliseconds).to.be.equals(1);
+    });
+
+    it('should create from string', function () {
+        expect(TimeSpan.fromString('01:00').totalMilliseconds).to.be.equals(60 * 60 * 1000);
+        expect(TimeSpan.fromString('01:00:00').totalMilliseconds).to.be.equals(60 * 60 * 1000);
+        expect(TimeSpan.fromString('00:01').totalMilliseconds).to.be.equals(60 * 1000);
+        expect(TimeSpan.fromString('00:01:00').totalMilliseconds).to.be.equals(60 * 1000);
+        expect(TimeSpan.fromString('00:00:01').totalMilliseconds).to.be.equals(1000);
+        expect(TimeSpan.fromString('00:00:01.9').totalMilliseconds).to.be.equals(1000);
+        expect(() => TimeSpan.fromString('00:00:01:00').totalMilliseconds).to.throw();
+        expect(() => TimeSpan.fromString('0000').totalMilliseconds).to.throw();
+    });
+
+    it('should subtract time since', function () {
+        expect(epoch() - epoch()).to.be.below(3);
+        // expect(TimeSpan.timeSince(fromEpoch(epoch())).toString()).to.be.ab(1000);
+    });
+
+    it('should construct', function () {
+        expect(new TimeSpan().totalMilliseconds).to.be.equals(0);
+        expect(new TimeSpan(1).totalMilliseconds).to.be.equals(24 * 60 * 60 * 1000);
+        expect(new TimeSpan(0, 1).totalMilliseconds).to.be.equals(60 * 60 * 1000);
+        expect(new TimeSpan(0, 0, 1).totalMilliseconds).to.be.equals(60 * 1000);
+        expect(new TimeSpan(0, 0, 0, 1).totalMilliseconds).to.be.equals(1000);
+        expect(new TimeSpan(0, 0, 0, 0, 1).totalMilliseconds).to.be.equals(1);
+    });
+
+    it('should add', function () {
+        expect(new TimeSpan().add(new TimeSpan()).totalMilliseconds).to.be.equals(0);
+        expect(new TimeSpan(1).add(new TimeSpan(1)).totalMilliseconds).to.be.equals(
+            2 * 24 * 60 * 60 * 1000
+        );
+        expect(new TimeSpan(0,0,0,0,1)
+            .add(new TimeSpan(0,0,0,0,1)).totalMilliseconds)
+            .to.be.equals(2);
+        expect(new TimeSpan(0,0,0,0, 1)
+            .addHours(1).totalMilliseconds).to.be.equals(60 * 60 * 1000 + 1);
+        expect(new TimeSpan(0,0,0,0, 1)
+            .addMinutes(1).totalMilliseconds).to.be.equals(60 * 1000 + 1);
+        expect(new TimeSpan(0,0,0,0, 1)
+            .addSeconds(1).totalMilliseconds).to.be.equals(1000 + 1);
+    });
+
+    it('should compare', function () {
+        expect(TimeSpan.fromMilliseconds(1).compareTo(TimeSpan.fromMilliseconds(2)))
+            .to.be.below(0);
+        expect(TimeSpan.fromMilliseconds(2).compareTo(TimeSpan.fromMilliseconds(1)))
+            .to.be.above(0);
+        expect(TimeSpan.fromMilliseconds(1).compareTo(TimeSpan.fromMilliseconds(1)))
+            .to.be.equals(0);
     });
 
 });
