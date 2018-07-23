@@ -435,6 +435,12 @@ describe('TimeSpan', function(){
 
     let epoch = () => new Date().getTime();
     let fromEpoch = (e: number) => DateTime.fromMilliseconds(e);
+    let stringRepresentations: {[s: string]: number} =  {
+        '01:00:00':     60 * 60 * 1000,
+        '1 00:00:00':   24 * 60 * 60 * 1000,
+        '00:01:00':     60 * 1000,
+        '00:00:01':     1000
+    };
 
     it('should manufacture', function () {
         expect(TimeSpan.fromDays(1).totalMilliseconds).to.be.equals(24 * 60 * 60 * 1000);
@@ -445,14 +451,12 @@ describe('TimeSpan', function(){
     });
 
     it('should create from string', function () {
-        expect(TimeSpan.fromString('01:00').totalMilliseconds).to.be.equals(60 * 60 * 1000);
-        expect(TimeSpan.fromString('01:00:00').totalMilliseconds).to.be.equals(60 * 60 * 1000);
-        expect(TimeSpan.fromString('00:01').totalMilliseconds).to.be.equals(60 * 1000);
-        expect(TimeSpan.fromString('00:01:00').totalMilliseconds).to.be.equals(60 * 1000);
-        expect(TimeSpan.fromString('00:00:01').totalMilliseconds).to.be.equals(1000);
-        expect(TimeSpan.fromString('00:00:01.9').totalMilliseconds).to.be.equals(1000);
+        for(let s in stringRepresentations)
+            expect(TimeSpan.fromString(s).totalMilliseconds).to.be.equals(stringRepresentations[s]);
+
+        expect(() => TimeSpan.fromString('01:00'      ).totalMilliseconds).to.throw();
         expect(() => TimeSpan.fromString('00:00:01:00').totalMilliseconds).to.throw();
-        expect(() => TimeSpan.fromString('0000').totalMilliseconds).to.throw();
+        expect(() => TimeSpan.fromString('0000'       ).totalMilliseconds).to.throw();
     });
 
     it('should subtract time since', function () {
@@ -492,6 +496,86 @@ describe('TimeSpan', function(){
             .to.be.above(0);
         expect(TimeSpan.fromMilliseconds(1).compareTo(TimeSpan.fromMilliseconds(1)))
             .to.be.equals(0);
+    });
+
+    it('should assert equals', function () {
+        expect(new TimeSpan().equals(new TimeSpan())).to.be.true;
+        expect(new TimeSpan(1).equals(new TimeSpan(1))).to.be.true;
+        expect(new TimeSpan(1).equals(TimeSpan.fromDays(1))).to.be.true;
+        expect(new TimeSpan(1).equals(TimeSpan.fromHours(24))).to.be.true;
+    });
+
+    it('should negate', function () {
+        expect(new TimeSpan().negate().totalMilliseconds).to.be.equals(0);
+        expect(new TimeSpan(0,0,0,0,1).negate().totalMilliseconds).to.be.equals(-1);
+    });
+
+    it('should subtract', function () {
+        expect(new TimeSpan().subtract(new TimeSpan()).totalMilliseconds).to.be.equals(0);
+        expect(TimeSpan.fromDays(1).subtract(TimeSpan.fromDays(1)).totalMilliseconds).to.be.equals(0);
+    });
+
+    it('should toString', function () {
+        for(let s in stringRepresentations){
+            expect(TimeSpan.fromMilliseconds(stringRepresentations[s]).toString()).to.be.equals(s);
+        }
+    });
+
+    it('should operate valueOf', function () {
+        expect(TimeSpan.fromMilliseconds(12345).valueOf()).to.be.equals(12345);
+        expect(TimeSpan.fromMilliseconds(1) as any + TimeSpan.fromMilliseconds(1)).to.be.equals(2);
+        expect(TimeSpan.fromMilliseconds(1) as any + TimeSpan.fromMilliseconds(-1)).to.be.equals(0);
+        expect((TimeSpan.fromMilliseconds(2) as any) * (TimeSpan.fromMilliseconds(4) as any)).to.be.equals(8);
+    });
+
+    it('should tell if empty', function () {
+        expect(new TimeSpan().isEmpty).to.be.true;
+        expect(new TimeSpan(null).isEmpty).to.be.true;
+        expect(new TimeSpan(1).isEmpty).to.be.false;
+
+
+    });
+
+    it('should handle days & totalDays props', function () {
+
+        // Happy paths
+        expect(TimeSpan.fromDays(1).days).to.be.equals(1);
+        expect(TimeSpan.fromDays(1).totalDays).to.be.equals(1);
+        expect(TimeSpan.fromHours(24).days).to.be.equals(1);
+        expect(TimeSpan.fromHours(24).totalDays).to.be.equals(1);
+        expect(TimeSpan.fromMinutes(24 * 60).days).to.be.equals(1);
+        expect(TimeSpan.fromMinutes(24 * 60).totalDays).to.be.equals(1);
+        expect(TimeSpan.fromSeconds(24 * 60 * 60).days).to.be.equals(1);
+        expect(TimeSpan.fromSeconds(24 * 60 * 60).totalDays).to.be.equals(1);
+        expect(TimeSpan.fromMilliseconds(24 * 60 * 60 * 1000).days).to.be.equals(1);
+        expect(TimeSpan.fromMilliseconds(24 * 60 * 60 * 1000).totalDays).to.be.equals(1);
+
+        expect(TimeSpan.fromDays(0.5).totalHours).to.be.equals(12);
+        expect(new TimeSpan(5, 1, 1, 1, 1).days).to.be.equals(5);
+        expect(new TimeSpan(5, 1, 1, 1, 1).totalDays).to.be.above(5);
+
+
+    });
+
+    it('should handle hours & totalHours props', function () {
+
+        // Happy paths
+        expect(TimeSpan.fromHours(1).hours).to.be.equals(1);
+        expect(TimeSpan.fromDays(1).totalHours).to.be.equals(24);
+        // expect(TimeSpan.fromHours(24).hours).to.be.equals(24);
+        expect(TimeSpan.fromHours(24).totalHours).to.be.equals(24);
+        // expect(TimeSpan.fromMinutes(24 * 60).hours).to.be.equals(24);
+        expect(TimeSpan.fromMinutes(24 * 60).totalHours).to.be.equals(24);
+        // expect(TimeSpan.fromSeconds(24 * 60 * 60).hours).to.be.equals(24);
+        expect(TimeSpan.fromSeconds(24 * 60 * 60).totalHours).to.be.equals(24);
+        // expect(TimeSpan.fromMilliseconds(24 * 60 * 60 * 1000).hours).to.be.equals(24);
+        expect(TimeSpan.fromMilliseconds(24 * 60 * 60 * 1000).totalHours).to.be.equals(24);
+
+        expect(TimeSpan.fromDays(0.5).totalHours).to.be.equals(12);
+        expect(new TimeSpan(5, 1, 1, 1, 1).days).to.be.equals(5);
+        expect(new TimeSpan(5, 1, 1, 1, 1).totalDays).to.be.above(5);
+
+
     });
 
 });

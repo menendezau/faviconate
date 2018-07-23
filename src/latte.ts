@@ -914,7 +914,7 @@ export namespace latte{
          **/
         static fromMilliseconds(milliseconds: number): TimeSpan{
 
-            var t = new TimeSpan();
+            let t = new TimeSpan();
 
             t.millis = milliseconds;
 
@@ -948,15 +948,43 @@ export namespace latte{
 
             let parts = timeString.split(':');
 
-            if(parts.length < 2 || parts.length > 3) {
-                throw "Wrong format"
+            if(parts.length !== 3) {
+                throw "Wrong format: [D] hh:mm:ss[.millis]"
             }
 
-            let hours = parts.length > 0 && _isNumeric(parts[0]) ? parseInt(parts[0], 10) : 0;
-            let minutes = parts.length > 1 && _isNumeric(parts[1]) ? parseInt(parts[1], 10) : 0;
-            let seconds = parts.length > 2 && _isNumeric(parts[2]) ? parseInt(parts[2], 10) : 0;
+            let first = parts[0];
+            let middle = parts[1];
+            let last = parts[2];
 
-            return new TimeSpan(0, hours, minutes, seconds);
+            let days = 0;
+            let hours = 0;
+            let minutes = parseInt(middle, 10);
+            let seconds = 0;
+            let milliseconds = 0;
+
+            if(first.indexOf(' ') >= 0) {
+                let firstParts = first.split(' ');
+
+                if(firstParts.length != 2 ) throw "Invalid format of first part: Days + space + hours";
+
+                days = parseInt(firstParts[0], 10);
+                hours = parseInt(firstParts[1], 10)
+            }else{
+
+                hours = parseInt(first, 10);
+            }
+
+            if(last.indexOf('.') >= 0) {
+                let lastParts = last.split('.');
+                if(lastParts.length != 2 ) throw "Invalid format of last part: Seconds + dot + milliseconds";
+                seconds = parseInt(lastParts[0], 10);
+                milliseconds= parseInt(lastParts[1], 10) * 100;
+
+            }else{
+                seconds = parseInt(last, 10);
+            }
+
+            return new TimeSpan(days, hours, minutes, seconds, milliseconds);
 
         }
 
@@ -1054,10 +1082,8 @@ export namespace latte{
         /**
          * Negates the timespan duration
          **/
-        negate(){
-
-            this.millis *= -1;
-
+        negate(): TimeSpan{
+            return TimeSpan.fromMilliseconds(this.millis * -1);
         }
 
         /**
@@ -1075,9 +1101,9 @@ export namespace latte{
             return  (this.millis < 0 ? '-' : '') +
                 (this.days ? this.days + ' ' : '') +
                 this._zeroPad(this.hours) + ":" +
-                this._zeroPad(this.minutes) +
-                (this.seconds ? ':' + this._zeroPad(this.seconds) : '') +
-                (includeMilliseconds ? '.' + Math.abs(this.milliseconds) : '');
+                this._zeroPad(this.minutes) + ':' +
+                this._zeroPad(this.seconds) +
+                (includeMilliseconds ? '.' + _zeroFill(3,Math.abs(this.milliseconds)) : '');
 
         }
 
