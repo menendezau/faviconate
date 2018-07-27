@@ -1,5 +1,7 @@
 export namespace latte{
 
+    //region Global Methods
+
     /**
      * Returns the camel case of the passed string
      * @param {string} s
@@ -179,6 +181,8 @@ export namespace latte{
 
         return result.join('');
     }
+
+    //endregion
 
     export type EventHandler = (...any: any[]) => any;
 
@@ -896,7 +900,14 @@ export namespace latte{
          **/
         static fromDays(days: number): TimeSpan{
 
-            return new TimeSpan(days);
+            let negate = days < 0;
+            let result = new TimeSpan(Math.abs(days));
+
+            if(negate) {
+                result.negate();
+            }
+
+            return result;
 
         }
 
@@ -905,7 +916,14 @@ export namespace latte{
          **/
         static fromHours(hours: number): TimeSpan{
 
-            return new TimeSpan(0, hours);
+            let negate = hours < 0;
+            let result = new TimeSpan(0, Math.abs(hours));
+
+            if(negate) {
+                result.negate();
+            }
+
+            return result;
 
         }
 
@@ -927,7 +945,14 @@ export namespace latte{
          **/
         static fromMinutes(minutes: number): TimeSpan{
 
-            return new TimeSpan(0, 0, minutes);
+            let negate = minutes < 0;
+            let result = new TimeSpan(0,0, Math.abs(minutes));
+
+            if(negate) {
+                result.negate();
+            }
+
+            return result;
 
         }
 
@@ -936,8 +961,14 @@ export namespace latte{
          **/
         static fromSeconds(seconds: number): TimeSpan{
 
-            return new TimeSpan(0, 0, 0, seconds);
+            let negate = seconds < 0;
+            let result = new TimeSpan(0, 0, 0, Math.abs(seconds));
 
+            if(negate) {
+                result.negate();
+            }
+
+            return result
         }
 
         /**
@@ -951,6 +982,9 @@ export namespace latte{
             if(parts.length !== 3) {
                 throw "Wrong format: [D] hh:mm:ss[.millis]"
             }
+
+            let negate = timeString.trim().indexOf('-') === 0;
+
 
             let first = parts[0];
             let middle = parts[1];
@@ -984,7 +1018,13 @@ export namespace latte{
                 seconds = parseInt(last, 10);
             }
 
-            return new TimeSpan(days, hours, minutes, seconds, milliseconds);
+            let result = new TimeSpan(days, hours, minutes, seconds, milliseconds);
+
+            if(negate) {
+                result.negate();
+            }
+
+            return result;
 
         }
 
@@ -1000,6 +1040,10 @@ export namespace latte{
          * Creates the TimeSpan with the specified parameters. Parameters not specified will be asumed to be zero.
          **/
         constructor(days: number = 0, hours: number = 0, minutes: number = 0, seconds: number = 0, milliseconds: number = 0){
+
+            if(days < 0 || hours < 0 || minutes < 0 || seconds < 0 || milliseconds < 0) {
+                throw "Parameters on constructor can't be negative";
+            }
 
             this.millis = (days * 86400 + hours * 3600 + minutes * 60 + seconds) * 1000 + milliseconds;
 
@@ -1062,14 +1106,7 @@ export namespace latte{
          * Returns the result of comparing this timespan against the provided timespan
          **/
         compareTo(timespan: TimeSpan): number{
-
-
-            if(this.millis  > timespan.millis) return 1;
-            if(this.millis  == timespan.millis) return 0;
-            if(this.millis  < timespan.millis) return -1;
-
-            throw "?";
-
+            return this.millis - timespan.millis;
         }
 
         /**
@@ -1082,8 +1119,9 @@ export namespace latte{
         /**
          * Negates the timespan duration
          **/
-        negate(): TimeSpan{
-            return TimeSpan.fromMilliseconds(this.millis * -1);
+        negate(): this{
+            this.millis *= -1;
+            return this;
         }
 
         /**
@@ -1099,11 +1137,11 @@ export namespace latte{
         toString(includeMilliseconds: boolean = false): string{
 
             return  (this.millis < 0 ? '-' : '') +
-                (this.days ? this.days + ' ' : '') +
-                this._zeroPad(this.hours) + ":" +
-                this._zeroPad(this.minutes) + ':' +
-                this._zeroPad(this.seconds) +
-                (includeMilliseconds ? '.' + _zeroFill(3,Math.abs(this.milliseconds)) : '');
+                (this.days ? Math.abs(this.days) + ' ' : '') +
+                this._zeroPad(Math.abs(this.hours)) + ":" +
+                this._zeroPad(Math.abs(this.minutes)) + ':' +
+                this._zeroPad(Math.abs(this.seconds)) +
+                (includeMilliseconds ? '.' + _zeroFill(3, Math.abs(this.milliseconds)) : '');
 
         }
 
@@ -1119,9 +1157,7 @@ export namespace latte{
          * Gets the days component of the time interval represented by this object
          **/
         get days(): number{
-
             return this._rounder(this.millis / 86400000 );
-
         }
 
         /**
@@ -1201,9 +1237,7 @@ export namespace latte{
          * Gets the value of this timespan expressed in whole and fractional minutes
          **/
         get totalMinutes(): number{
-
             return this.millis / (60 * 1000);
-
         }
 
         /**
@@ -1237,7 +1271,6 @@ export namespace latte{
          * Returns the absolute number of days on the specified day-month-year
          **/
         static absoluteDays(year: number, month: number, day: number): number{
-
 
             let div = function(a: number, b: number) { return Math.floor(a / b); };
             let arr = DateTime.isLeapYear(year) ?
@@ -2372,7 +2405,7 @@ export namespace latte{
     }
 
     /**
-     *
+     * Represents a size vector
      */
     export class Size extends PropertyTarget{
 

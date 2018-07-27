@@ -448,15 +448,35 @@ describe('TimeSpan', function(){
         expect(TimeSpan.fromMinutes(1).totalMilliseconds).to.be.equals(60 * 1000);
         expect(TimeSpan.fromSeconds(1).totalMilliseconds).to.be.equals(1000);
         expect(TimeSpan.fromMilliseconds(1).totalMilliseconds).to.be.equals(1);
+
+        expect(TimeSpan.fromDays(-1).totalMilliseconds).to.be.equals(-24 * 60 * 60 * 1000);
+        expect(TimeSpan.fromHours(-1).totalMilliseconds).to.be.equals(-60 * 60 * 1000);
+        expect(TimeSpan.fromMinutes(-1).totalMilliseconds).to.be.equals(-60 * 1000);
+        expect(TimeSpan.fromSeconds(-1).totalMilliseconds).to.be.equals(-1000);
+        expect(TimeSpan.fromMilliseconds(-1).totalMilliseconds).to.be.equals(-1);
     });
 
     it('should create from string', function () {
         for(let s in stringRepresentations)
             expect(TimeSpan.fromString(s).totalMilliseconds).to.be.equals(stringRepresentations[s]);
 
-        expect(() => TimeSpan.fromString('01:00'      ).totalMilliseconds).to.throw();
-        expect(() => TimeSpan.fromString('00:00:01:00').totalMilliseconds).to.throw();
-        expect(() => TimeSpan.fromString('0000'       ).totalMilliseconds).to.throw();
+        expect(TimeSpan.fromString('00:00:01.1'  ).totalMilliseconds).to.be.equals(1100);
+
+        expect(() => TimeSpan.fromString('5 5 01:00:00')).to.throw();
+        expect(() => TimeSpan.fromString('01:00'      )).to.throw();
+        expect(() => TimeSpan.fromString('00:00:01:00')).to.throw();
+        expect(() => TimeSpan.fromString('0000'       )).to.throw();
+        expect(() => TimeSpan.fromString('00:00:1.9.9')).to.throw();
+
+    });
+
+    it('should create negatives from string', function () {
+        expect(TimeSpan.fromString('-00:00:01'        ).totalSeconds).to.be.equals(-1);
+        expect(() => TimeSpan.fromString('00:00:-01'  )).to.throw();
+    });
+
+    it('should create with time since', function () {
+        expect(TimeSpan.timeSince(DateTime.now).totalSeconds).to.be.equals(0);
     });
 
     it('should subtract time since', function () {
@@ -471,6 +491,7 @@ describe('TimeSpan', function(){
         expect(new TimeSpan(0, 0, 1).totalMilliseconds).to.be.equals(60 * 1000);
         expect(new TimeSpan(0, 0, 0, 1).totalMilliseconds).to.be.equals(1000);
         expect(new TimeSpan(0, 0, 0, 0, 1).totalMilliseconds).to.be.equals(1);
+        expect(() => new TimeSpan(-1)).to.throw();
     });
 
     it('should add', function () {
@@ -519,6 +540,9 @@ describe('TimeSpan', function(){
         for(let s in stringRepresentations){
             expect(TimeSpan.fromMilliseconds(stringRepresentations[s]).toString()).to.be.equals(s);
         }
+
+        expect(TimeSpan.fromSeconds(-1).toString()).to.be.equals('-00:00:01');
+        expect(new TimeSpan(1, 1, 1,1, 1).negate().toString()).to.be.equals('-1 01:01:01');
     });
 
     it('should operate valueOf', function () {
@@ -575,7 +599,73 @@ describe('TimeSpan', function(){
         expect(new TimeSpan(5, 1, 1, 1, 1).days).to.be.equals(5);
         expect(new TimeSpan(5, 1, 1, 1, 1).totalDays).to.be.above(5);
 
+    });
 
+    it('should handle minutes & totalMinutes props', function () {
+        expect(TimeSpan.fromMinutes(1).minutes).to.be.equals(1);
+        expect(TimeSpan.fromMinutes(1).totalMinutes).to.be.equals(1);
+    });
+
+    it('should handle seconds & totalSeconds props', function () {
+        expect(TimeSpan.fromSeconds(1).seconds).to.be.equals(1);
+        expect(TimeSpan.fromSeconds(1).totalSeconds).to.be.equals(1);
+    });
+
+    it('should handle milliseconds & totalMilliseconds props', function () {
+        expect(TimeSpan.fromMilliseconds(1).milliseconds).to.be.equals(1);
+        expect(TimeSpan.fromMilliseconds(1).totalMilliseconds).to.be.equals(1);
+    });
+
+});
+
+describe('DateTime', function () {
+
+    it('should tell absolute days of year', function () {
+
+        expect(DateTime.absoluteDays(1, 1, 1)).to.be.equals(0);
+        expect(DateTime.absoluteDays(4, 1, 1)).to.be.equals(365 * 3);
+        expect(DateTime.absoluteDays(4, 3, 1)).to.be.equals(365 * 3 + 31 + 29);
+
+    });
+
+    it('should tell days in month', function () {
+
+        expect(DateTime.daysInMonth(2000, 1)).to.be.equals(31);
+        expect(DateTime.daysInMonth(2000, 2)).to.be.equals(29);
+        expect(DateTime.daysInMonth(2000, 3)).to.be.equals(31);
+        expect(DateTime.daysInMonth(2000, 4)).to.be.equals(30);
+        expect(DateTime.daysInMonth(2000, 5)).to.be.equals(31);
+        expect(DateTime.daysInMonth(2000, 6)).to.be.equals(30);
+        expect(DateTime.daysInMonth(2000, 7)).to.be.equals(31);
+        expect(DateTime.daysInMonth(2000, 8)).to.be.equals(31);
+        expect(DateTime.daysInMonth(2000, 9)).to.be.equals(30);
+        expect(DateTime.daysInMonth(2000, 10)).to.be.equals(31);
+        expect(DateTime.daysInMonth(2000, 11)).to.be.equals(30);
+        expect(DateTime.daysInMonth(2000, 12)).to.be.equals(31);
+
+        expect(DateTime.daysInMonth(2001, 1)).to.be.equals(31);
+        expect(DateTime.daysInMonth(2001, 2)).to.be.equals(28);
+        expect(DateTime.daysInMonth(2001, 3)).to.be.equals(31);
+        expect(DateTime.daysInMonth(2001, 4)).to.be.equals(30);
+        expect(DateTime.daysInMonth(2001, 5)).to.be.equals(31);
+        expect(DateTime.daysInMonth(2001, 6)).to.be.equals(30);
+        expect(DateTime.daysInMonth(2001, 7)).to.be.equals(31);
+        expect(DateTime.daysInMonth(2001, 8)).to.be.equals(31);
+        expect(DateTime.daysInMonth(2001, 9)).to.be.equals(30);
+        expect(DateTime.daysInMonth(2001, 10)).to.be.equals(31);
+        expect(DateTime.daysInMonth(2001, 11)).to.be.equals(30);
+        expect(DateTime.daysInMonth(2001, 12)).to.be.equals(31);
+
+    });
+
+    it('should create from date and time components', function () {
+
+        expect(DateTime.fromDateAndTime(DateTime.now, new TimeSpan()).equals(DateTime.today)).to.be.true;
+
+    });
+
+    it('should create from milliseconds', function () {
+        expect(DateTime.fromMilliseconds(0)._span.totalMilliseconds).to.be.equals(0);
     });
 
 });
