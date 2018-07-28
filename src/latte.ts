@@ -1325,23 +1325,22 @@ export namespace latte{
             let year = 0, month = 0, day = 0, hour = 0, minute = 0, second = 0;
             let parts = dateTimeString.split(' ');
             let dateParts = parts.length > 0 ? parts[0].split('-') : [];
-            let timeParts = parts.length > 1 ? parts[1].split(':') : [];
+            let timeOfDay = parts.length > 1 ? TimeSpan.fromString(parts[1]) : new TimeSpan();
 
             if(dateParts.length === 3){
                 year = parseInt(dateParts[0], 10);
                 month = parseInt(dateParts[1], 10);
                 day = parseInt(dateParts[2], 10);
+            }else{
+                throw "Invalid date format";
             }
 
-            if(timeParts.length === 3){
-                hour = parseInt(timeParts[0], 10);
-                minute = parseInt(timeParts[1], 10);
-                second = parseInt(timeParts[2], 10);
-            }
+            hour = timeOfDay.hours;
+            minute = timeOfDay.minutes;
+            second = timeOfDay.seconds;
 
-            if(year <= 0) year = 1;
-            if(month <= 0) month = 1;
-            if(day <= 0) day = 1;
+            if(year <= 0 || month <= 0 || day < 0)
+                throw "Date components can't be lower than one.";
 
             return new DateTime(year, month, day, hour, minute, second);
 

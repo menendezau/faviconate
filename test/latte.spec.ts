@@ -668,4 +668,26 @@ describe('DateTime', function () {
         expect(DateTime.fromMilliseconds(0)._span.totalMilliseconds).to.be.equals(0);
     });
 
+    it('should create from string', function () {
+
+        let base = DateTime.fromString('1-1-1 00:00:00');
+        let timed = DateTime.fromString('1-1-1');
+
+        expect(base.day).to.be.equals(1);
+        expect(base.month).to.be.equals(1);
+        expect(base.year).to.be.equals(1);
+
+        expect(base.hour).to.be.equals(0);
+        expect(base.minute).to.be.equals(0);
+        expect(base.second).to.be.equals(0);
+
+        expect(timed.hour).to.be.equals(0);
+        expect(timed.minute).to.be.equals(0);
+        expect(timed.second).to.be.equals(0);
+
+        expect(() => DateTime.fromString('0-0-0')).to.throw();
+        expect(() => DateTime.fromString('1-1-1-1-1')).to.throw();
+
+    });
+
 });
