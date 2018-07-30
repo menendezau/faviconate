@@ -690,4 +690,129 @@ describe('DateTime', function () {
 
     });
 
+    it('should tell if is leap year', function () {
+
+        expect(DateTime.isLeapYear(2000)).to.be.true;
+        expect(DateTime.isLeapYear(2001)).to.be.false;
+        expect(DateTime.isLeapYear(2002)).to.be.false;
+        expect(DateTime.isLeapYear(2003)).to.be.false;
+        expect(DateTime.isLeapYear(2004)).to.be.true;
+
+    });
+
+    it('should return now', function () {
+
+        let nowA = TimeSpan.timeSince(new DateTime(1970, 1, 1));
+        let offset = new Date().getTimezoneOffset() * 60 * 1000;
+        let nowB = Date.now();
+
+        expect(nowA.totalMilliseconds).to.be.equals(nowB - offset);
+
+    });
+
+    it('should return now today, tomorrow, yesterday', function () {
+        let dayMillis = 24 * 60 * 60 * 1000;
+        let now = DateTime.now;
+        let today = DateTime.today;
+        let tomorrow = DateTime.tomorrow.toMilliseconds();
+        let yesterday = DateTime.yesterday.toMilliseconds();
+
+        expect(today.year).to.be.equals(now.year);
+        expect(today.month).to.be.equals(now.month);
+        expect(today.day).to.be.equals(now.day);
+        expect(today.hour).to.be.equals(0);
+        expect(today.minute).to.be.equals(0);
+        expect(today.second).to.be.equals(0);
+        expect(today.millisecond).to.be.equals(0);
+
+        expect(tomorrow).to.be.equals(today.toMilliseconds() + dayMillis);
+        expect(yesterday).to.be.equals(today.toMilliseconds() - dayMillis);
+
+    });
+
+    it('should return unix epoch', function () {
+        expect(DateTime.epoch.year).to.be.equals(1970);
+        expect(DateTime.epoch.month).to.be.equals(1);
+        expect(DateTime.epoch.day).to.be.equals(1);
+    });
+
+    it('should construct', function () {
+
+        expect(() => new DateTime(0, 1, 1)).to.throw();
+
+    });
+
+    it('should add', function () {
+
+        let start = new DateTime(1, 1, 1);
+
+        expect(start
+            .add(TimeSpan.fromMilliseconds(1))
+            .toMilliseconds())
+            .to.be.equals(1);
+
+        expect(start
+            .addDays(1)
+            .toMilliseconds())
+            .to.be.equals(24 * 60 * 60 * 1000);
+
+        expect(start
+            .addHours(1)
+            .toMilliseconds())
+            .to.be.equals(60 * 60 * 1000);
+
+        expect(start
+            .addMinutes(1)
+            .toMilliseconds())
+            .to.be.equals(60 * 1000);
+
+        expect(start
+            .addSeconds(1)
+            .toMilliseconds())
+            .to.be.equals(1000);
+
+        expect(start
+            .addMilliseconds(1)
+            .toMilliseconds())
+            .to.be.equals(1);
+
+        expect(start
+            .addMonths(1)
+            .toMilliseconds())
+            .to.be.equals(31 * 24 * 60 * 60 * 1000);
+
+        expect(start
+            .addYears(1)
+            .toMilliseconds())
+            .to.be.equals(365 * 24 * 60 * 60 * 1000);
+
+    });
+
+    it('should compare', function () {
+        expect(DateTime.fromMilliseconds(1).compareTo(
+            DateTime.fromMilliseconds(2)
+        )).to.be.below(0);
+
+        let millis = Math.round(Math.abs(Math.random() * 1234567890));
+
+        expect(DateTime.fromMilliseconds(millis).equals(
+            new DateTime(1,1,1,0,0,0, millis)
+        )).to.be.true;
+    });
+
+    it('should tell onRange', function () {
+        // a-----b-----c
+        let a = new DateTime(1, 1, 1);
+        let b = new DateTime(1, 1, 2);
+        let c = new DateTime(1, 1, 3);
+
+        expect(b.onRange(a, b)).to.be.true;
+        expect(a.onRange(b, c)).to.be.false;
+        expect(c.onRange(a, c)).to.be.true;
+    });
+
+    it('should subtract', function () {
+
+    });
+
 });

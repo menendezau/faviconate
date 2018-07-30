@@ -1363,8 +1363,7 @@ export namespace latte{
          * Gets a DateTime representing the current millisecond
          **/
         static get now(): DateTime{
-
-            let d = new Date();
+            let d = new Date(); // Native Js Object
             return new DateTime(d.getFullYear(), d.getMonth() + 1, d.getDate(), d.getHours(), d.getMinutes(), d.getSeconds(), d.getMilliseconds());
 
         }
@@ -1415,6 +1414,10 @@ export namespace latte{
          **/
         constructor(year: number = 1, month: number = 1, day: number = 1, hour: number = 0, minute: number = null, second: number = null, millisecond: number = null){
 
+            if(year <= 0 || month <= 0 || day <= 0) {
+                throw "No argument can be <= 0";
+            }
+
             // Calculate days
             let days = DateTime.absoluteDays(year, month, day);
 
@@ -1429,7 +1432,7 @@ export namespace latte{
          * Returns the specified element of date.
          Possible values for <c>what</c> are: <c>year</c> | <c>month</c> | <c>dayyear</c> | <c>day</c>
          **/
-        private fromTimeSpan(what: string): number{
+        private fromTimeSpan(what: 'year' | 'dayyear' | 'month' |'day'): number{
 
 
             let div = function(a: number, b: number){ return Math.floor(a/b); };
@@ -1569,7 +1572,7 @@ export namespace latte{
          **/
         addSeconds(seconds: number): DateTime{
 
-            return new DateTime(this._span.millis + seconds * 1000);
+            return  DateTime.fromMilliseconds(this._span.millis + seconds * 1000);
 
         }
 
@@ -1623,6 +1626,14 @@ export namespace latte{
         subtractTime(timespan: TimeSpan): DateTime{
             return DateTime.fromMilliseconds(this._span.millis - timespan.millis);
 
+        }
+
+        /**
+         * Gets the Date as an absolute measure of milliseconds
+         * @returns {number}
+         */
+        toMilliseconds(): number{
+            return this._span.totalMilliseconds;
         }
 
         /**
