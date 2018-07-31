@@ -23,6 +23,9 @@ import DidSet = latte.DidSet;
 import DateTime = latte.DateTime;
 import TimeSpan = latte.TimeSpan;
 
+let randomRange = (min: number, max: number) => Math.floor(Math.random() * (max - min)) + min;
+let randomDate = () => new DateTime(randomRange(2000, 2020), randomRange(1, 12), randomRange(1, 29), randomRange(0, 23), randomRange(0, 59), randomRange(0, 59), randomRange(0, 999));
+
 describe('Global Functions', function () {
 
     it('_camelCase', () => {
@@ -214,6 +217,7 @@ describe('PropertyTarget', function(){
         a.someStatic = 'abc';
 
         expect(a.someStatic).to.be.equals('abc');
+        expect(a.someStatic).to.be.equals('abc');
 
         let p = new a();
 
@@ -323,6 +327,25 @@ describe('Color', function () {
 
         expect(() => Color.fromHex('090909090909090')).to.throw();
         expect(() => Color.fromHex(1 as any)).to.throw();
+
+    });
+
+    it('should from and to Int32', function () {
+
+        _repeat(100, () => {
+            let r = randomRange(0, 255);
+            let g = randomRange(0, 255);
+            let b = randomRange(0, 255);
+            let a = randomRange(0, 255);
+            let color = new Color(r, g, b, a);
+            let int32 = color.toInt32();
+            let from = Color.fromInt32(int32);
+
+            expect(from.r).to.be.equals(r);
+            expect(from.g).to.be.equals(g);
+            expect(from.b).to.be.equals(b);
+            expect(from.a).to.be.equals(a);
+        });
 
     });
 
@@ -620,6 +643,14 @@ describe('TimeSpan', function(){
 
 describe('DateTime', function () {
 
+    it('should respect max', function () {
+
+        let max = DateTime.MAX_VALUE;
+
+        expect(DateTime.MAX_VALUE.toMilliseconds()).to.be.equals((Number as any).MAX_SAFE_INTEGER);
+        // expect(DateTime.fromMilliseconds(9007199254740991).toMilliseconds()).to.be.equals(9007199254740991);
+    });
+
     it('should tell absolute days of year', function () {
 
         expect(DateTime.absoluteDays(1, 1, 1)).to.be.equals(0);
@@ -812,6 +843,66 @@ describe('DateTime', function () {
     });
 
     it('should subtract', function () {
+
+        expect(new DateTime(1,1,2)
+            .subtractDate(new DateTime(1, 1, 1))
+            .equals(TimeSpan.fromDays(1))).to.be.true;
+
+        expect(new DateTime(1,1,2)
+            .subtractTime(TimeSpan.fromDays(1))
+            .equals(new DateTime(1, 1, 1))).to.be.true;
+
+    });
+
+    it('should toString and valueOf', function () {
+
+        let dates = [
+            '2000-01-01 00:00:00',
+            '1-01-01 00:05:00',
+            '3000-01-01 00:05:00',
+        ];
+
+        dates.forEach(d => expect(DateTime.fromString(d).toString()).to.be.equals(d));
+
+
+    });
+
+    it('should tell individual parts', function () {
+
+        _repeat(100, () => {
+            let year = randomRange(1950, 2020),
+                month = randomRange(1, 12),
+                day = randomRange(1, 29),
+                hour = randomRange(0, 23),
+                minute = randomRange(0, 59),
+                second = randomRange(0, 59),
+                milli = randomRange(0, 999);
+            let d = new DateTime(year, month, day, hour, minute, second, milli);
+
+            expect(d.year).to.be.equals(year);
+            expect(d.month).to.be.equals(month);
+            expect(d.day).to.be.equals(day);
+            expect(d.hour).to.be.equals(hour);
+            expect(d.minute).to.be.equals(minute);
+            expect(d.second).to.be.equals(second);
+            expect(d.millisecond).to.be.equals(milli);
+            expect(d.timeOfDay.equals(new TimeSpan(0, hour, minute, second, milli))).to.be.true;
+
+            if(DateTime.epoch.compareTo(DateTime.epoch) > 0) {
+                expect(d.thisEpoch).to.be.false;
+            }else{
+                expect(d.thisEpoch).to.be.true;
+            }
+
+        });
+
+        expect(new DateTime(2000, 1, 1).weekOfYear).to.be.equals(1);
+        expect(new DateTime(2001, 12, 31).weekOfYear).to.be.equals(53);
+
+        expect(new DateTime(2000, 1, 1).dayOfYear).to.be.equals(1);
+        expect(new DateTime(2000, 12, 31).dayOfYear).to.be.equals(366);
+        expect(new DateTime(2001, 1, 1).dayOfYear).to.be.equals(1);
+        expect(new DateTime(2001, 12, 31).dayOfYear).to.be.equals(365);
 
     });
 

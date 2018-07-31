@@ -456,6 +456,20 @@ export namespace latte{
         }
 
         /**
+         * Gets the color from the specifed 32 byte based integer
+         * @param {number} n
+         * @returns {latte.Color}
+         */
+        static fromInt32(n: number): Color{
+            return new Color(
+                n & 0xff,
+                (n & 0xff00) >>> 8,
+                (n & 0xff0000) >>> 16,
+                (n & 0xFF000000) >>> 24
+            );
+        }
+
+        /**
          * Gets the RGB (Red, Green, Blue) components from a CMYK namespace
          * @param c
          * @param m
@@ -719,6 +733,17 @@ export namespace latte{
         }
 
         /**
+         * Returns the color as an int32 representation
+         * @returns {number}
+         */
+        toInt32(): number{
+            return (this.a << 24)	|	// alpha
+                (this.b  << 16)	|	// blue
+                (this.g  <<  8)	|	// green
+                this.r;			    // red
+        }
+
+        /**
          * Returns the color in the format: rgba(0, 0, 0, 255)
          * @returns {string}
          */
@@ -891,9 +916,47 @@ export namespace latte{
     /**
      * Represents a time interval.
      **/
-    export class TimeSpan{
+    export class TimeSpan extends PropertyTarget{
 
         millis: number = 0;
+
+        /**
+         * Returns the maximum possible integer
+         * @param {number} n
+         * @returns {boolean}
+         */
+        static get MAX_SAFE_INTEGER(): number{
+            return (Number as any).MAX_SAFE_INTEGER;
+        }
+
+        /**
+         * Returns the minimum possible integer
+         * @param {number} n
+         * @returns {boolean}
+         */
+        static get MIN_SAFE_INTEGER(): number{
+            return (Number as any).MIN_SAFE_INTEGER;
+        }
+
+        /**
+         * Gets the maximum possible value
+         */
+        static get MAX_VALUE(): TimeSpan {
+            return PropertyTarget.getStaticLazyProperty(TimeSpan, 'MAX_VALUE', () => {
+                return new TimeSpan();
+            });
+        }
+
+
+        /**
+         * Gets the minimum possible value
+         */
+        static get MIN_VALUE(): TimeSpan {
+            return PropertyTarget.getStaticLazyProperty(TimeSpan, 'MIN_VALUE', () => {
+                return new TimeSpan();
+            });
+        }
+
 
         /**
          * Creates a TimeSpan from the specified amount of days
@@ -1037,9 +1100,20 @@ export namespace latte{
         }
 
         /**
+         * Tells if the passed number is a safe integer
+         * @param {number} n
+         * @returns {boolean}
+         */
+        static isSafe(n: number): boolean{
+            return (Number as any).isSafeInteger(n);
+        }
+
+        /**
          * Creates the TimeSpan with the specified parameters. Parameters not specified will be asumed to be zero.
          **/
         constructor(days: number = 0, hours: number = 0, minutes: number = 0, seconds: number = 0, milliseconds: number = 0){
+
+            super();
 
             if(days < 0 || hours < 0 || minutes < 0 || seconds < 0 || milliseconds < 0) {
                 throw "Parameters on constructor can't be negative";
@@ -1253,9 +1327,19 @@ export namespace latte{
     /**
      * Represents a specific date and time
      **/
-    export class DateTime{
+    export class DateTime extends PropertyTarget{
 
         //region Static
+
+        /**
+         * Gets the maximum representable date
+         */
+        static get MAX_VALUE(): DateTime {
+            return PropertyTarget.getStaticLazyProperty(DateTime, 'MAX_VALUE', () => {
+                return DateTime.fromMilliseconds((Number as any).MAX_SAFE_INTEGER);
+            });
+        }
+
 
         /**
          * Amount of days in months of a non-leap year
@@ -1413,6 +1497,8 @@ export namespace latte{
          * Creates the DateTime object
          **/
         constructor(year: number = 1, month: number = 1, day: number = 1, hour: number = 0, minute: number = null, second: number = null, millisecond: number = null){
+
+            super();
 
             if(year <= 0 || month <= 0 || day <= 0) {
                 throw "No argument can be <= 0";
@@ -1674,9 +1760,7 @@ export namespace latte{
          * Gets the day of this datetime
          **/
         get day(): number{
-
             return this.fromTimeSpan("day");
-
         }
 
         /**
@@ -1695,15 +1779,6 @@ export namespace latte{
 
             return this.fromTimeSpan("dayyear");
 
-        }
-
-        /**
-         * Gets the comparer value of the date
-         *
-         * @returns {number}
-         */
-        get comparer():number {
-            return this._span.totalMilliseconds;
         }
 
         /**
