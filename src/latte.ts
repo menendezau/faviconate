@@ -2,6 +2,16 @@ export namespace latte{
 
     //region Global Methods
 
+    declare interface INumber{
+        MAX_SAFE_INTEGER: number;
+        MIN_SAFE_INTEGER: number;
+        MAX_VALUE: number;
+        MIN_VALUE: number;
+        isSafeInteger(n: number): boolean;
+    }
+
+    declare var Number: INumber;
+
     /**
      * Returns the camel case of the passed string
      * @param {string} s
@@ -1983,6 +1993,7 @@ export namespace latte{
     export class Point extends PropertyTarget{
 
         //region Static
+
         /**
          * Gets the distance between two points
          * @param a
@@ -1996,7 +2007,7 @@ export namespace latte{
          * Returns an empty point
          * @returns {latte.Point}
          */
-        static empty(): Point{
+        static get empty(): Point{
             return new Point(null, null);
         }
 
@@ -2004,7 +2015,7 @@ export namespace latte{
          * Returns a point situated on the origin
          * @returns {latte.Point}
          */
-        static origin(): Point{
+        static get origin(): Point{
             return new Point(0, 0);
         }
 
@@ -2016,13 +2027,8 @@ export namespace latte{
         constructor(x: number = null, y: number = null) {
             super();
 
-            if(x !== null) {
-                this.setPropertyValue('x', x);
-            }
-
-            if(y !== null) {
-                this.setPropertyValue('y', y);
-            }
+            this.setPropertyValue('x', x);
+            this.setPropertyValue('y', y);
         }
 
         //region Methods
@@ -2057,11 +2063,19 @@ export namespace latte{
         }
 
         /**
+         * Returns a Point with rounded components
+         * @returns {latte.Point}
+         */
+        round(): Point{
+            return new Point(Math.round(this.x), Math.round(this.y));
+        }
+
+        /**
          * Gets string representation of the point
          * @returns {string}
          */
         toString(): string{
-            return sprintf("Point(%s, %s)", this.x, this.y);
+            return sprintf("(%s, %s)", this.x, this.y);
         }
 
         //endregion
@@ -2080,15 +2094,193 @@ export namespace latte{
          * Gets the x component of the point
          */
         get x(): number {
-            return this.getPropertyValue('x', 0);
+            return this.getPropertyValue('x', null);
         }
 
         /**
          * Gets the y component of the point
          */
         get y(): number {
-            return this.getPropertyValue('y', 0);
+            return this.getPropertyValue('y', null);
         }
+
+        //endregion
+    }
+
+    /**
+     * Represents a size vector
+     */
+    export class Size extends PropertyTarget{
+
+        //region Static
+        /**
+         * Returns an empty size
+         * @returns {latte.Size}
+         */
+        static get empty(): Size{
+            return new Size(null, null);
+        }
+
+        /**
+         * Returns a size of zero width and zero height
+         * @returns {latte.Point}
+         */
+        static get zero(): Size{
+            return new Size(0, 0);
+        }
+        //endregion
+
+        /**
+         * Creates a new Size, optionally sets its Width and Height components
+         */
+        constructor(width: number = null, height: number = null) {
+            super();
+            this.setPropertyValue('width', width);
+            this.setPropertyValue( 'height', height);
+        }
+
+        //region Methods
+        /**
+         * Gets a value indicating if the size contains the specified size.
+         * @param size
+         */
+        contains(size: Size): boolean{
+            return this.width >= size.width && this.height >= size.height;
+        }
+
+        /**
+         * Returns a value indicating if the size is
+         * @param {latte.Size} s
+         * @returns {boolean}
+         */
+        equals(s: Size): boolean{
+            return this.width == s.width && this.height == s.height;
+        }
+
+        /**
+         * Inflates the size on the specified width and height
+         *
+         * @param width
+         * @param height
+         * @returns {latte.Size}
+         */
+        inflate(width: number, height: number): Size{
+            return new Size(this.width + width, this.height + height);
+        }
+
+        /**
+         * Inflates the size uniformly
+         * @param wide
+         */
+        inflateUniform(wide: number){
+            return new Size(this.width + wide, this.height + wide);
+        }
+
+        /**
+         * Returns a new size with rounded dimensions
+         * @returns {latte.Size}
+         */
+        round(): Size{
+            return new Size(Math.round(this.width), Math.round(this.height));
+        }
+
+        /**
+         * Gets a scaled Size that fits in the specified target.
+         * @param target
+         */
+        scaleToFit(target: Size): Size {
+            let dh = target.width * this.height / this.width;
+
+            if(dh > target.height) {
+                return new Size( target.height * this.width / this.height, target.height);
+            }
+
+            return new Size(target.width, dh);
+        }
+
+        /**
+         * Gets a scaled Size that fills the specified target.
+         * @param target
+         */
+        scaleToFill(target: Size): Size{
+            let dh = target.width * this.height / this.width;
+
+            if(dh <= target.height) {
+                return new Size( target.height * this.width / this.height, target.height);
+            }
+
+            return new Size(target.width, dh);
+        }
+
+        /**
+         * Gets string representation of the size
+         * @returns {string}
+         */
+        toString(): string{
+            return sprintf("(%s, %s)", this.width, this.height);
+        }
+        //endregion
+
+        //region Properties
+        /**
+         * Gets the area represented by the size
+         *
+         * @returns {number}
+         */
+        get area():number {
+            return this.width * this.height;
+        }
+
+        /**
+         * Gets a value indicating if the size has no compnents assigned or initialized
+         *
+         * @returns {boolean}
+         */
+        public get isEmpty():boolean {
+            return this.width == null || this.height == null;
+        }
+
+        /**
+         * Gets a value indicating if the size is horizontal
+         *
+         * @returns {boolean}
+         */
+        get isHorizontal(): boolean {
+            return this.width > this.height;
+        }
+
+        /**
+         * Gets a value indicating if the size is a square
+         *
+         * @returns {boolean}
+         */
+        get isSquare(): boolean {
+            return this.width == this.height;
+        }
+
+        /**
+         * Gets a value indicating if the size is vertical
+         *
+         * @returns {boolean}
+         */
+        get isVertical(): boolean {
+            return this.height > this.width;
+        }
+
+        /**
+         * Gets the height of the size
+         */
+        get height(): number {
+            return this.getPropertyValue('height', null);
+        }
+
+        /**
+         * Gets the width of the size
+         */
+        get width(): number {
+            return this.getPropertyValue('width', null);
+        }
+
 
         //endregion
     }
@@ -2487,181 +2679,6 @@ export namespace latte{
 
         //endregion
 
-    }
-
-    /**
-     * Represents a size vector
-     */
-    export class Size extends PropertyTarget{
-
-        //region Static
-        /**
-         * Returns an empty size
-         * @returns {latte.Size}
-         */
-        static empty(): Size{
-            return new Size(null, null);
-        }
-
-        /**
-         * Returns a size of zero width and zero height
-         * @returns {latte.Point}
-         */
-        static zero(): Size{
-            return new Size(0, 0);
-        }
-        //endregion
-
-        /**
-         * Creates a new Size, optionally sets its Width and Height components
-         */
-        constructor(width: number = null, height: number = null) {
-            super();
-
-            if(width !== null) {
-                this.setPropertyValue('width', width);
-            }
-
-            if(height !== null) {
-                this.setPropertyValue( 'height', height);
-            }
-        }
-
-        //region Methods
-        /**
-         * Gets a value indicating if the size contains the specified size.
-         * @param size
-         */
-        contains(size: Size): boolean{
-            return this.width >= size.width && this.height >= size.height;
-        }
-
-        /**
-         * Inflates the size on the specified width and height
-         *
-         * @param width
-         * @param height
-         * @returns {latte.Size}
-         */
-        inflate(width: number, height: number): Size{
-            return new Size(this.width + width, this.height + height);
-        }
-
-        /**
-         * Inflates the size uniformly
-         * @param wide
-         */
-        inflateUniform(wide: number){
-            return new Size(this.width + wide, this.height + wide);
-        }
-
-        /**
-         * Returns a new size with rounded dimensions
-         * @returns {latte.Size}
-         */
-        round(): Size{
-            return new Size(Math.round(this.width), Math.round(this.height));
-        }
-
-        /**
-         * Gets a scaled Size that fits in the specified target.
-         * @param target
-         */
-        scaleToFit(target: Size): Size {
-            let dh = target.width * this.height / this.width;
-
-            if(dh > target.height) {
-                return new Size( target.height * this.width / this.height, target.height);
-            }
-
-            return new Size(target.width, dh);
-        }
-
-        /**
-         * Gets a scaled Size that fills the specified target.
-         * @param target
-         */
-        scaleToFill(target: Size): Size{
-            let dh = target.width * this.height / this.width;
-
-            if(dh <= target.height) {
-                return new Size( target.height * this.width / this.height, target.height);
-            }
-
-            return new Size(target.width, dh);
-        }
-
-        /**
-         * Gets string representation of the size
-         * @returns {string}
-         */
-        toString(): string{
-            return sprintf("Size(%s, %s)", this.width, this.height);
-        }
-        //endregion
-
-        //region Properties
-        /**
-         * Gets the area represented by the size
-         *
-         * @returns {number}
-         */
-        get area():number {
-            return this.width * this.height;
-        }
-
-        /**
-         * Gets a value indicating if the size has no compnents assigned or initialized
-         *
-         * @returns {boolean}
-         */
-        public get isEmpty():boolean {
-            return this.width == null && this.height == null;
-        }
-
-        /**
-         * Gets a value indicating if the size is horizontal
-         *
-         * @returns {boolean}
-         */
-        get isHorizontal(): boolean {
-            return this.width > this.height;
-        }
-
-        /**
-         * Gets a value indicating if the size is a square
-         *
-         * @returns {boolean}
-         */
-        get isSquare(): boolean {
-            return this.width == this.height;
-        }
-
-        /**
-         * Gets a value indicating if the size is vertical
-         *
-         * @returns {boolean}
-         */
-        get isVertical(): boolean {
-            return this.height > this.width;
-        }
-
-        /**
-         * Gets the height of the size
-         */
-        get height(): number {
-            return this.getPropertyValue('height', null);
-        }
-
-        /**
-         * Gets the width of the size
-         */
-        get width(): number {
-            return this.getPropertyValue('width', null);
-        }
-
-
-        //endregion
     }
 
 }

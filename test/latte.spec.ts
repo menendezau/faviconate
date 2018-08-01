@@ -22,7 +22,20 @@ import WillSet = latte.WillSet;
 import DidSet = latte.DidSet;
 import DateTime = latte.DateTime;
 import TimeSpan = latte.TimeSpan;
+import Point = latte.Point;
+import Size = latte.Size;
 
+declare interface INumber{
+    MAX_SAFE_INTEGER: number;
+    MIN_SAFE_INTEGER: number;
+    MAX_VALUE: number;
+    MIN_VALUE: number;
+    isSafeInteger(n: number): boolean;
+}
+
+declare var Number: INumber;
+
+let randomInt = () => Math.abs(Math.random() * Number.MAX_SAFE_INTEGER);
 let randomRange = (min: number, max: number) => Math.floor(Math.random() * (max - min)) + min;
 let randomDate = () => new DateTime(randomRange(2000, 2020), randomRange(1, 12), randomRange(1, 29), randomRange(0, 23), randomRange(0, 59), randomRange(0, 59), randomRange(0, 999));
 
@@ -419,7 +432,7 @@ describe('Color', function () {
         expect(Color.white.toRgbString()).to.be.equals('rgba(255, 255, 255, 255)');
     });
 
-    it('should cymk properties', function () {
+    it('should CYMK properties', function () {
         let deepSkyBlue = new Color(0, 191, 255);
         expect(deepSkyBlue.c).to.be.equals(1);
         expect(parseFloat(deepSkyBlue.m.toFixed(2))).to.be.equals(.25);
@@ -439,7 +452,7 @@ describe('Color', function () {
         expect(parseFloat(dark.k.toFixed(1))).to.be.equals(.9);
     });
 
-    it('should percievedLuminosity', function () {
+    it('should perceivedLuminosity', function () {
         expect(Color.black.isDark).to.be.true;
         expect(Color.white.isLight).to.be.true;
         expect(Color.red.isDark).to.be.true;
@@ -903,6 +916,175 @@ describe('DateTime', function () {
         expect(new DateTime(2000, 12, 31).dayOfYear).to.be.equals(366);
         expect(new DateTime(2001, 1, 1).dayOfYear).to.be.equals(1);
         expect(new DateTime(2001, 12, 31).dayOfYear).to.be.equals(365);
+
+    });
+
+});
+
+describe('Point', function () {
+
+    it('should handle emptiness', function () {
+        let p1 = new Point(null, null);
+        let p2 = new Point(0, 0);
+
+        expect(p1.isEmpty).to.be.true;
+        expect(p2.isEmpty).to.be.false;
+        expect(Point.empty.isEmpty).to.be.true;
+        expect(Point.origin.isEmpty).to.be.false;
+        expect(p2.equals(Point.origin)).to.be.true;
+    });
+
+    it('should handle distance', function () {
+        expect(Point.distance(Point.origin, new Point(0, 1))).to.be.equals(1);
+        expect(Point.distance(Point.origin, new Point(1, 0))).to.be.equals(1);
+        expect(Point.origin.distanceTo(new Point(1, 0))).to.be.equals(1);
+    });
+
+    it('should handle offset', function () {
+        let p = new Point(randomInt(), randomInt());
+        let x = randomInt();
+        let y = randomInt();
+        let o = p.offset(x, y);
+
+        expect(p.x + x).to.be.equals(o.x);
+        expect(p.y + y).to.be.equals(o.y);
+        expect(p.x != o.x).to.be.true;
+        expect(p.y != o.y).to.be.true;
+
+    });
+
+    it('should handle equality', function () {
+
+        _repeat(100, () => {
+            let x = randomInt();
+            let y = randomInt();
+            expect(new Point(x, y).equals(new Point(x, y))).to.be.true;
+        });
+
+        expect(Point.empty.equals(Point.origin)).to.be.false;
+
+    });
+
+    it('should round', function () {
+        let s = new Point(5.4, 4.9);
+        let r = s.round();
+
+        expect(r.x).to.be.equals(5);
+        expect(r.y).to.be.equals(5);
+    });
+
+});
+
+describe('Size', function(){
+
+    it('should handle emptiness', function () {
+
+        let p1 = new Size(null, null);
+        let p2 = new Size(0, 0);
+
+        expect(p1.isEmpty).to.be.true;
+        expect(p2.isEmpty).to.be.false;
+        expect(Size.empty.isEmpty).to.be.true;
+        expect(Size.zero.isEmpty).to.be.false;
+
+    });
+
+    it('should handle equality', function () {
+
+        _repeat(100, () => {
+            let x = randomInt();
+            let y = randomInt();
+            expect(new Size(x, y).equals(new Size(x, y))).to.be.true;
+            expect(new Size(x, y).equals(new Size(y, x))).to.be.false;
+        });
+
+        expect(Size.empty.equals(Size.zero)).to.be.false;
+
+    });
+
+    it('should say containment', function () {
+
+        let s = new Size(randomInt(), randomInt());
+        let inner = new Size(s.width - 1, s.width - 1);
+
+        expect(s.contains(inner)).to.be.true;
+        expect(inner.contains(s)).to.be.false;
+        expect(Size.zero.contains(Size.zero)).to.be.true;
+
+    });
+
+    it('should round', function () {
+        let s = new Size(5.4, 4.9);
+        let r = s.round();
+
+        expect(r.width).to.be.equals(5);
+        expect(r.height).to.be.equals(5);
+    });
+
+    it('should inflate', function () {
+
+        let w = randomInt();
+        let h = randomInt();
+        let s = new Size(w, h);
+        let dw = randomInt();
+        let dh = randomInt();
+        let ds = s.inflate(dw, dh);
+
+        expect(ds.width).to.be.equals(w + dw);
+        expect(ds.height).to.be.equals(h + dh);
+
+        // Check original stayed the same
+        expect(s.width).to.be.equals(w);
+        expect(s.height).to.be.equals(h);
+
+        let u = s.inflateUniform(dh);
+
+        expect(u.width).to.be.equals(w + dh);
+        expect(u.height).to.be.equals(h + dh);
+
+        // Check original stayed the same
+        expect(s.width).to.be.equals(w);
+        expect(s.height).to.be.equals(h);
+
+    });
+
+    it('should scale', function () {
+
+        let s1 = new Size(10, 10);
+        let s2 = new Size(5, 5);
+        let s3 = s2.scaleToFill(s1);
+        let s4 = s2.scaleToFit(s1);
+
+        expect(s3.equals(s1)).to.be.true;
+        expect(s4.equals(s1)).to.be.true;
+
+        let s5 = new Size(1, 2).scaleToFit(s1);
+        let s6 = new Size(1, 2).scaleToFill(s1);
+
+        expect(s5.equals(new Size(5, 10))).to.be.true;
+        expect(s6.equals(new Size(10, 20))).to.be.true;
+
+        let s7 = new Size(2, 1).scaleToFit(s1);
+        let s8 = new Size(2, 1).scaleToFill(s1);
+
+        expect(s7.equals(new Size(10, 5))).to.be.true;
+        expect(s8.equals(new Size(20, 10))).to.be.true;
+
+    });
+
+    it('should describe it', function () {
+
+        let a = randomInt();
+        let b = a + 1;
+
+        expect(new Size(a, a).area).to.be.equals(a * a);
+        expect(new Size(a, a).isSquare).to.be.true;
+        expect(new Size(a, b).isSquare).to.be.false;
+        expect(new Size(b, a).isSquare).to.be.false;
+        expect(new Size(a, b).isHorizontal).to.be.false;
+        expect(new Size(b, a).isHorizontal).to.be.true;
+        expect(new Size(a, b).isVertical).to.be.true;
+        expect(new Size(b, a).isVertical).to.be.false;
 
     });
 
