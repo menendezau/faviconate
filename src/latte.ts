@@ -2414,11 +2414,8 @@ export namespace latte{
          * Returns the result of centering this into the specified container
          **/
         centerOn(container: Rectangle): Rectangle{
-
-            let c = new Rectangle( container.left + (container.width - this.width) / 2,
+            return new Rectangle( container.left + (container.width - this.width) / 2,
                 container.top + (container.height - this.height) / 2, this.width, this.height );
-            return c;
-
         }
 
         /**
@@ -2439,6 +2436,15 @@ export namespace latte{
         }
 
         /**
+         * Returns a value indicating if the rectangle contains the specified point
+         * @param {latte.Point} point
+         * @returns {boolean}
+         */
+        containsPoint(point: Point){
+            return this.contains(point.x, point.y);
+        }
+
+        /**
          * Gets a value indicating if the rectangle is contained inside this rectangle
          **/
         containsRectangle(rectangle: Rectangle): boolean{
@@ -2454,7 +2460,7 @@ export namespace latte{
          */
         equals(r: Rectangle): boolean{
             if(!r) return false;
-            return this.left == r.left && this.top == this.top && this.width == r.width && this.height == r.height;
+            return this.left === r.left && this.top === this.top && this.width === r.width && this.height === r.height;
         }
 
         /**

@@ -1182,7 +1182,37 @@ describe('Rectangle',function () {
     });
 
     it('should center', function () {
-        // TODO HERE
+
+        let big = new Rectangle(3, 3, 11, 11);
+        let small = new Rectangle(0, 0, 1, 1);
+        let c = small.centerOn(big);
+
+        expect(c.left).to.be.equals(8);
+        expect(c.top).to.be.equals(8);
+        expect(c.width).to.be.equals(1);
+        expect(c.height).to.be.equals(1);
+
     });
+
+    it('should clone', function () {
+        _repeat(100, () => {
+            let r = new Rectangle(randomInt(), randomInt(), randomInt(), randomInt());
+
+            expect(r.equals(r.clone())).to.be.true;
+        })
+    });
+
+    it('should tell containment', function () {
+
+        let big = new Rectangle(10, 10, 10, 10);
+
+        expect(big.contains(12, 12)).to.be.true;
+        expect(big.containsPoint(new Point(12, 12))).to.be.true;
+        expect(big.containsRectangle(new Rectangle(11, 11, 3, 3))).to.be.true;
+        expect(big.containsRectangle(new Rectangle(11, 11, 3, 11))).to.be.false;
+
+    });
+
+
 
 });
