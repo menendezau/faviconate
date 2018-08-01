@@ -2091,6 +2091,16 @@ export namespace latte{
         }
 
         /**
+         * Gets a value indicating if the Point is the origin
+         *
+         * @returns {boolean}
+         */
+        get isOrigin(): boolean {
+            return this.x === 0 && this.y === 0;
+        }
+
+
+        /**
          * Gets the x component of the point
          */
         get x(): number {
@@ -2110,7 +2120,7 @@ export namespace latte{
     /**
      * Represents a size vector
      */
-    export class Size extends PropertyTarget{
+    export class Size extends PropertyTarget {
 
         //region Static
         /**
@@ -2268,6 +2278,16 @@ export namespace latte{
         }
 
         /**
+         * Gets a value indicating if the size is of zero dimensions
+         *
+         * @returns {boolean}
+         */
+        get isZero(): boolean {
+            return this.width === 0 && this.height === 0;
+        }
+
+
+        /**
          * Gets the height of the size
          */
         get height(): number {
@@ -2293,11 +2313,19 @@ export namespace latte{
         //region Static
 
         /**
-         * Returns a new empty rectangle
+         * Returns a new empty rectangle with null dimensions
          * @returns {latte.Rectangle}
          */
-        static empty(): Rectangle{
+        static get empty(): Rectangle{
             return new Rectangle(null, null, null, null);
+        }
+
+        /**
+         * Returns a rectangle at (0,0) of 0 dimensions
+         * @returns {latte.Rectangle}
+         */
+        static get zero(): Rectangle{
+            return new Rectangle();
         }
 
         /**
@@ -2312,6 +2340,13 @@ export namespace latte{
          * @param obj
          */
         static fromObject(obj: any): Rectangle{
+
+            'left,top,width,height'.split(',').forEach(p => {
+                if(!(p in obj)) {
+                    throw "Missing " + p + " property"
+                }
+            });
+
             return new Rectangle(obj.left, obj.top, obj.width, obj.height);
         }
 
@@ -2319,7 +2354,14 @@ export namespace latte{
          * Creates a rectangle from the specified object (top, left, width, height)
          * @param obj
          */
-        static fromObjectLFTB(obj: any): Rectangle{
+        static fromObjectLRTB(obj: any): Rectangle{
+
+            'left,right,top,bottom'.split(',').forEach(p => {
+                if(!(p in obj)) {
+                    throw "Missing " + p + " property"
+                }
+            });
+
             return Rectangle.fromLRTB(obj.left, obj.right, obj.top, obj.bottom);
         }
 
@@ -2545,7 +2587,7 @@ export namespace latte{
          * @returns {number}
          */
         get area(): number {
-            return this.width * this.height;
+            return this.size.area;
         }
 
         /**
@@ -2585,8 +2627,18 @@ export namespace latte{
          * @returns {boolean}
          */
         get isEmpty(): boolean {
-            return this.width == null && this.height == null && this.left == null && this.top == null;
+            return this.size.isEmpty && this.location.isEmpty;
         }
+
+        /**
+         * Gets a value indicating if the rectangle is at (0,0) of zero dimensions
+         *
+         * @returns {boolean}
+         */
+        get isZero(): boolean {
+            return this.location.isOrigin && this.size.isZero;
+        }
+
 
         /**
          * Gets a value indicating if the rectangle is horizontal

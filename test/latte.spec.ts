@@ -24,6 +24,7 @@ import DateTime = latte.DateTime;
 import TimeSpan = latte.TimeSpan;
 import Point = latte.Point;
 import Size = latte.Size;
+import Rectangle = latte.Rectangle;
 
 declare interface INumber{
     MAX_SAFE_INTEGER: number;
@@ -930,7 +931,9 @@ describe('Point', function () {
         expect(p1.isEmpty).to.be.true;
         expect(p2.isEmpty).to.be.false;
         expect(Point.empty.isEmpty).to.be.true;
+        expect(Point.empty.isOrigin).to.be.false;
         expect(Point.origin.isEmpty).to.be.false;
+        expect(Point.origin.isOrigin).to.be.true;
         expect(p2.equals(Point.origin)).to.be.true;
     });
 
@@ -985,7 +988,9 @@ describe('Size', function(){
         expect(p1.isEmpty).to.be.true;
         expect(p2.isEmpty).to.be.false;
         expect(Size.empty.isEmpty).to.be.true;
+        expect(Size.empty.isZero).to.be.false;
         expect(Size.zero.isEmpty).to.be.false;
+        expect(Size.zero.isZero).to.be.true;
 
     });
 
@@ -1005,7 +1010,7 @@ describe('Size', function(){
     it('should say containment', function () {
 
         let s = new Size(randomInt(), randomInt());
-        let inner = new Size(s.width - 1, s.width - 1);
+        let inner = new Size(s.width - 1, s.height - 1);
 
         expect(s.contains(inner)).to.be.true;
         expect(inner.contains(s)).to.be.false;
@@ -1078,6 +1083,7 @@ describe('Size', function(){
         let b = a + 1;
 
         expect(new Size(a, a).area).to.be.equals(a * a);
+        expect(new Size(a, a).area).to.be.equals(Math.pow(a, 2));
         expect(new Size(a, a).isSquare).to.be.true;
         expect(new Size(a, b).isSquare).to.be.false;
         expect(new Size(b, a).isSquare).to.be.false;
@@ -1086,6 +1092,97 @@ describe('Size', function(){
         expect(new Size(a, b).isVertical).to.be.true;
         expect(new Size(b, a).isVertical).to.be.false;
 
+    });
+
+});
+
+describe('Rectangle',function () {
+
+    it('should handle emptiness', function () {
+
+        expect(Rectangle.empty.isEmpty).to.be.true;
+        expect(Rectangle.empty.isZero).to.be.false;
+        expect(Rectangle.zero.isEmpty).to.be.false;
+        expect(Rectangle.zero.isZero).to.be.true;
+
+    });
+
+    it('should produce by LRTB', function () {
+
+        let r = Rectangle.fromLRTB(5, 10, 5, 10);
+
+        expect(r.left).to.be.equals(5);
+        expect(r.width).to.be.equals(5);
+        expect(r.top).to.be.equals(5);
+        expect(r.height).to.be.equals(5);
+
+    });
+
+    it('should produce by object', function () {
+
+        let o1 = {
+            left: 5,
+            width: 5,
+            top: 5,
+            height: 5
+        };
+        let o2 = {
+            left: 5,
+            right: 10,
+            top: 5,
+            bottom: 10
+        };
+
+        expect(Rectangle.fromObject(o1).equals(new Rectangle(5, 5, 5 ,5))).to.be.true;
+        expect(Rectangle.fromObjectLRTB(o2).equals(new Rectangle(5, 5, 5 ,5))).to.be.true;
+
+        delete o1.left;
+        delete o2.top;
+
+        expect(() => Rectangle.fromObject(o1)).to.throw();
+        expect(() => Rectangle.fromObjectLRTB(o2)).to.throw();
+        expect(() => Rectangle.fromObject({})).to.throw();
+        expect(() => Rectangle.fromObjectLRTB({})).to.throw();
+
+    });
+
+    it('should produce by element', function () {
+
+        let r = Rectangle.fromElement(document.body);
+
+        expect(r).not.to.be.null;
+
+    });
+
+    it('should make absolute, ceil, floor', function () {
+
+        _repeat(100, () => {
+            let a = randomInt();
+            let b = randomInt();
+            let c = -randomInt();
+            let d = -randomInt();
+            let r = new Rectangle(a, b, c, d).absolute();
+
+            expect(r.width).to.be.above(0);
+            expect(r.height).to.be.above(0);
+        });
+
+        expect(
+            new Rectangle(1.2, 1.2, 1.2, 1.2)
+                .ceil()
+                .equals(new Rectangle(2, 2, 2, 2))
+        ).to.be.true;
+
+        expect(
+            new Rectangle(1.2, 1.2, 1.2, 1.2)
+                .floor()
+                .equals(new Rectangle(1, 1, 1, 1))
+        ).to.be.true;
+
+    });
+
+    it('should center', function () {
+        // TODO HERE
     });
 
 });
