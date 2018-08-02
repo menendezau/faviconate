@@ -2517,6 +2517,23 @@ export namespace latte{
         }
 
         /**
+         * Returns a new rectangle on specified location of same size
+         * @param {latte.Point} location
+         */
+        ofLocation(location: Point){
+            return new Rectangle(location.x, location.y, this.width, this.height);
+        }
+
+        /**
+         * Returns a new rectangle with same location, specified size
+         * @param {latte.Size} size
+         * @returns {latte.Rectangle}
+         */
+        ofSize(size: Size): Rectangle{
+            return new Rectangle(this.left, this.top, size.width, size.height);
+        }
+
+        /**
          * Returns a rectangle with rounded coordinates
          * @returns {latte.Rectangle}
          */
@@ -2526,22 +2543,21 @@ export namespace latte{
         }
 
         /**
+         * Returns a new rectangle that could fill the specified size
+         * @param {latte.Size} size
+         * @returns {latte.Rectangle}
+         */
+        scaleToFill(size: Size): Rectangle{
+            return this.ofSize(this.size.scaleToFill(size));
+        }
+
+        /**
          * Scales the rectangle to fit the specified size.
          * @param {latte.Size} size
          * @returns {latte.Rectangle}
          */
-        scaleToFit(size: Size){
-            let outer = new Rectangle(this.left, this.top, size.width, size.height);
-            let inner = this.clone();
-            let resizeFactor = inner.aspectRatio >= outer.aspectRatio ?
-                (outer.width / inner.width) : (outer.height / inner.height);
-
-            let newWidth = inner.width * resizeFactor;
-            let newHeight = inner.height * resizeFactor;
-            // let newLeft = outer.left + (outer.width - newWidth) / 2;
-            // let newTop = outer.top + (outer.height - newHeight) / 2;
-
-            return new Rectangle(this.left, this.top, newWidth, newHeight);
+        scaleToFit(size: Size): Rectangle{
+            return this.ofSize(this.size.scaleToFit(size));
 
         }
 
@@ -2644,7 +2660,6 @@ export namespace latte{
         get isZero(): boolean {
             return this.location.isOrigin && this.size.isZero;
         }
-
 
         /**
          * Gets a value indicating if the rectangle is horizontal

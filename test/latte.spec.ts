@@ -1194,6 +1194,16 @@ describe('Rectangle',function () {
 
     });
 
+    it('should create new size and location', function () {
+        let original = new Rectangle(1, 1, 1, 1);
+        let a = original.ofLocation(new Point(9,10));
+        let b = original.ofSize(new Size(8,9));
+
+        expect(a.equals(new Rectangle(9, 10, 1, 1))).to.be.true;
+        expect(b.equals(new Rectangle(1, 1, 8, 9))).to.be.true;
+
+    });
+
     it('should clone', function () {
         _repeat(100, () => {
             let r = new Rectangle(randomInt(), randomInt(), randomInt(), randomInt());
@@ -1213,6 +1223,42 @@ describe('Rectangle',function () {
 
     });
 
+    it('should inflate & scale', function () {
 
+        let original = new Rectangle(1, 1, 1, 1);
+        let ten = new Rectangle(randomInt(), randomInt(), randomInt(), randomInt());
+        let h = new Rectangle(0, 0, 2, 1);
+        let v = new Rectangle(0,0, 1, 2);
+        let r = original.inflate(1, 1);
+
+        expect(r.top).to.be.equals(0);
+        expect(r.left).to.be.equals(0);
+        expect(r.width).to.be.equals(3);
+        expect(r.height).to.be.equals(3);
+
+        let fh = h.scaleToFit(ten.size);
+        let fv = v.scaleToFit(ten.size);
+        let lh = h.scaleToFill(ten.size);
+        let lv = v.scaleToFill(ten.size);
+
+        expect(fh.size.equals(h.size.scaleToFit(ten.size))).to.be.true;
+        expect(fv.size.equals(v.size.scaleToFit(ten.size))).to.be.true;
+        expect(lh.size.equals(h.size.scaleToFill(ten.size))).to.be.true;
+        expect(lv.size.equals(v.size.scaleToFill(ten.size))).to.be.true;
+
+
+    });
+
+    it('should handle set operations', function () {
+
+        // Intersects
+        // Intersect
+        // Union
+
+    });
+
+    it('should tell vertical, horizontal, square', function () {
+
+    });
 
 });
