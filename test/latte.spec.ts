@@ -1259,6 +1259,31 @@ describe('Rectangle',function () {
 
     it('should tell vertical, horizontal, square', function () {
 
+        let doh = (): Rectangle => {
+            let n = randomInt() / 2;
+            return new Rectangle(randomInt(), randomInt(), n + 1, n);
+        };
+        let dov = (): Rectangle => {
+            let n = randomInt() / 2;
+            return new Rectangle(randomInt(), randomInt(), n, n + 1);
+        };
+        let dos = (): Rectangle => {
+            let n = randomInt() / 2;
+            return new Rectangle(randomInt(), randomInt(), n, n);
+        };
+
+        _repeat(100, () => {
+            expect(doh().isHorizontal).to.be.true;
+            expect(doh().isVertical).to.be.false;
+            expect(doh().isSquare).to.be.false;
+            expect(dov().isHorizontal).to.be.false;
+            expect(dov().isVertical).to.be.true;
+            expect(dov().isSquare).to.be.false;
+            expect(dos().isHorizontal).to.be.false;
+            expect(dos().isVertical).to.be.false;
+            expect(dos().isSquare).to.be.true;
+        });
+
     });
 
 });
