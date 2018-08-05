@@ -190,14 +190,18 @@ describe('PropertyTarget', function(){
 
     it('should get & set properties', function () {
 
+        class Something{}
+
+        class SomethingElse extends Something{}
+
         class a extends PropertyTarget{
 
             static get someStatic(): string {
-                return PropertyTarget.getStaticPropertyValue(a, 'someStatic', 'sdef');
+                return PropertyTarget.getStaticPropertyValue(a, 'someStatic', String,'sdef');
             }
 
             static set someStatic(value: string) {
-                PropertyTarget.setStaticPropertyValue(a, 'someStatic', value);
+                PropertyTarget.setStaticPropertyValue(a, 'someStatic', String, value);
             }
 
             static get hasSomeStatic(): boolean {
@@ -209,11 +213,11 @@ describe('PropertyTarget', function(){
             }
 
             get name(): string {
-                return this.getPropertyValue('name', 'defname');
+                return this.getPropertyValue('name', String, 'defname');
             }
 
             set name(value: string) {
-                this.setPropertyValue('name', value);
+                this.setPropertyValue('name', value, String);
             }
 
             setValues(s: string){
@@ -225,7 +229,6 @@ describe('PropertyTarget', function(){
         }
 
         expect(a.hasSomeStatic).to.be.false;
-
         expect(a.someStatic).to.be.equals('sdef');
 
         a.someStatic = 'abc';
@@ -236,7 +239,6 @@ describe('PropertyTarget', function(){
         let p = new a();
 
         expect(p.hasName).to.be.false;
-
         expect(p.name).to.be.equals('defname');
 
         p.name = 'joe';
@@ -246,6 +248,8 @@ describe('PropertyTarget', function(){
         p.setValues('doe');
 
         expect(p.name).to.be.equals('doe');
+
+        expect(() => p.name = (0 as any)).to.throw();
 
     });
 
@@ -276,11 +280,11 @@ describe('PropertyTarget', function(){
             }
 
             get name(): string {
-                return this.getPropertyValue('name', 'defname');
+                return this.getPropertyValue('name', String,'defname');
             }
 
             set name(value: string) {
-                this.setPropertyValue('name', value);
+                this.setPropertyValue('name', value, String);
             }
 
         }
@@ -479,6 +483,14 @@ describe('TimeSpan', function(){
         '00:00:01':     1000
     };
 
+    it('should respect boundaries', function () {
+
+        expect(TimeSpan.MAX_VALUE.totalMilliseconds).to.be.equals(Number.MAX_SAFE_INTEGER);
+        expect(TimeSpan.MIN_VALUE.totalMilliseconds).to.be.equals(Number.MIN_SAFE_INTEGER);
+
+        expect(() => TimeSpan.fromMilliseconds(Number.MAX_SAFE_INTEGER *2)).to.throw();
+    });
+
     it('should manufacture', function () {
         expect(TimeSpan.fromDays(1).totalMilliseconds).to.be.equals(24 * 60 * 60 * 1000);
         expect(TimeSpan.fromHours(1).totalMilliseconds).to.be.equals(60 * 60 * 1000);
@@ -513,7 +525,7 @@ describe('TimeSpan', function(){
     });
 
     it('should create with time since', function () {
-        expect(TimeSpan.timeSince(DateTime.now).totalSeconds).to.be.equals(0);
+        expect(TimeSpan.timeSince(DateTime.now).totalSeconds).to.be.below(0.005);
     });
 
     it('should subtract time since', function () {
@@ -657,12 +669,10 @@ describe('TimeSpan', function(){
 
 describe('DateTime', function () {
 
-    it('should respect max', function () {
+    it('should respect min/max', function () {
 
-        let max = DateTime.MAX_VALUE;
-
-        expect(DateTime.MAX_VALUE.toMilliseconds()).to.be.equals((Number as any).MAX_SAFE_INTEGER);
-        // expect(DateTime.fromMilliseconds(9007199254740991).toMilliseconds()).to.be.equals(9007199254740991);
+        expect(DateTime.MAX_VALUE.toMilliseconds()).to.be.equals(Number.MAX_SAFE_INTEGER);
+        expect(DateTime.MIN_VALUE.toMilliseconds()).to.be.equals(0);
     });
 
     it('should tell absolute days of year', function () {
@@ -730,6 +740,10 @@ describe('DateTime', function () {
         expect(timed.minute).to.be.equals(0);
         expect(timed.second).to.be.equals(0);
 
+        expect(() => DateTime.fromString('')).to.throw();
+        expect(() => DateTime.fromString('a')).to.throw();
+        expect(() => DateTime.fromString('a-b')).to.throw();
+        expect(() => DateTime.fromString('a-b-c')).to.throw();
         expect(() => DateTime.fromString('0-0-0')).to.throw();
         expect(() => DateTime.fromString('1-1-1-1-1')).to.throw();
 
@@ -925,14 +939,8 @@ describe('DateTime', function () {
 describe('Point', function () {
 
     it('should handle emptiness', function () {
-        let p1 = new Point(null, null);
         let p2 = new Point(0, 0);
 
-        expect(p1.isEmpty).to.be.true;
-        expect(p2.isEmpty).to.be.false;
-        expect(Point.empty.isEmpty).to.be.true;
-        expect(Point.empty.isOrigin).to.be.false;
-        expect(Point.origin.isEmpty).to.be.false;
         expect(Point.origin.isOrigin).to.be.true;
         expect(p2.equals(Point.origin)).to.be.true;
     });
@@ -964,8 +972,6 @@ describe('Point', function () {
             expect(new Point(x, y).equals(new Point(x, y))).to.be.true;
         });
 
-        expect(Point.empty.equals(Point.origin)).to.be.false;
-
     });
 
     it('should round', function () {
@@ -982,15 +988,10 @@ describe('Size', function(){
 
     it('should handle emptiness', function () {
 
-        let p1 = new Size(null, null);
         let p2 = new Size(0, 0);
 
-        expect(p1.isEmpty).to.be.true;
-        expect(p2.isEmpty).to.be.false;
+        expect(p2.isEmpty).to.be.true;
         expect(Size.empty.isEmpty).to.be.true;
-        expect(Size.empty.isZero).to.be.false;
-        expect(Size.zero.isEmpty).to.be.false;
-        expect(Size.zero.isZero).to.be.true;
 
     });
 
@@ -1003,7 +1004,6 @@ describe('Size', function(){
             expect(new Size(x, y).equals(new Size(y, x))).to.be.false;
         });
 
-        expect(Size.empty.equals(Size.zero)).to.be.false;
 
     });
 
@@ -1014,7 +1014,6 @@ describe('Size', function(){
 
         expect(s.contains(inner)).to.be.true;
         expect(inner.contains(s)).to.be.false;
-        expect(Size.zero.contains(Size.zero)).to.be.true;
 
     });
 
@@ -1100,9 +1099,6 @@ describe('Rectangle',function () {
 
     it('should handle emptiness', function () {
 
-        expect(Rectangle.empty.isEmpty).to.be.true;
-        expect(Rectangle.empty.isZero).to.be.false;
-        expect(Rectangle.zero.isEmpty).to.be.false;
         expect(Rectangle.zero.isZero).to.be.true;
 
     });
@@ -1246,14 +1242,58 @@ describe('Rectangle',function () {
         expect(lh.size.equals(h.size.scaleToFill(ten.size))).to.be.true;
         expect(lv.size.equals(v.size.scaleToFill(ten.size))).to.be.true;
 
+        /*
+         +---------+
+         |         |
+         |   +-+   |
+         |   +-+   |
+         |         |
+         +---------+
+         */
+        let a = new Rectangle(0, 0, 11, 6);
+        let b = new Rectangle(4, 2, 3, 2);
+
+        expect(b.scaleToWidth(a.width).width).to.be.equals(a.width);
+        expect(b.scaleToWidth(a.width).height).to.be.equals(a.width * b.height / b.width);
+
+        expect(b.scaleToHeight(a.height).height).to.be.equals(a.height);
+        expect(b.scaleToHeight(a.height).width).to.be.equals(a.height * b.width / b.height);
+
 
     });
 
     it('should handle set operations', function () {
 
+        /*
+                       +---+
+         +---------+   | B |
+         |         |   +---+
+         |    A  +-+-+
+         |       | | | <- C
+         |       +-+-+
+         +---------+
+         */
+
+        let a = new Rectangle(0, 1, 11, 6);
+        let b = new Rectangle(14, 0, 5, 3);
+        let c = new Rectangle(8, 3, 5, 3);
+        let anc = new Rectangle(8, 3, 3, 3);
+        let auc = Rectangle.fromLRTB(0, c.right, a.top, a.bottom);
+        let aub = Rectangle.fromLRTB(0, b.right, b.top, a.bottom);
+        let buc = Rectangle.fromLRTB(c.left, b.right, b.top, c.bottom);
+
         // Intersects
+        expect(a.intersects(b)).to.be.false;
+        expect(a.intersects(c)).to.be.true;
+        expect(b.intersects(c)).to.be.false;
+
         // Intersect
+        expect(a.intersection(c).equals(anc)).to.be.true;
+
         // Union
+        expect(a.union(c).equals(auc)).to.be.true;
+        expect(a.union(b).equals(aub)).to.be.true;
+        expect(b.union(c).equals(buc)).to.be.true;
 
     });
 
@@ -1282,6 +1322,27 @@ describe('Rectangle',function () {
             expect(dos().isHorizontal).to.be.false;
             expect(dos().isVertical).to.be.false;
             expect(dos().isSquare).to.be.true;
+        });
+
+    });
+
+    it('should describe', function () {
+
+        _repeat(100, () => {
+            let x = randomInt();
+            let y = randomInt();
+            let w = randomInt();
+            let h = randomInt();
+            let r = new Rectangle(x, y, w, h);
+            let a = w * h;
+            let aspect = w / h;
+
+            expect(r.left).to.be.equals(x);
+            expect(r.top).to.be.equals(y);
+            expect(r.width).to.be.equals(w);
+            expect(r.height).to.be.equals(h);
+            expect(r.area).to.be.equals(a);
+            expect(r.aspectRatio).to.be.equals(aspect);
         });
 
     });

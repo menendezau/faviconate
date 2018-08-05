@@ -262,6 +262,10 @@ export namespace latte{
         silent?: boolean;
     }
 
+    export type PropertyValueType = any;// (...any: any[]) => any | Function;
+
+    export class Any{};// (...any: any[]) => any | Function;
+
     /**
      * Gives an object property capabilities
      */
@@ -278,21 +282,22 @@ export namespace latte{
             return eventObj.staticProperties;
         }
 
-        static getStaticPropertyValue(classObj: any, name: string, withDefault: any = undefined): any{
-            return PropertyTarget.getStaticObject(classObj).getPropertyValue(name, withDefault);
+        static getStaticPropertyValue(classObj: any, name: string, validator: PropertyValueType, withDefault: any = undefined): any{
+            return PropertyTarget.getStaticObject(classObj).getPropertyValue(name, validator, withDefault);
         }
 
         static hasStaticPropertyValue(className: any, name: string): boolean{
             return PropertyTarget.getStaticObject(className).hasPropertyValue(name);
         }
 
-        static setStaticPropertyValue<T>(className: any, name: string, value: T, options: SetPropertyOptions = {}): T{
-            return PropertyTarget.getStaticObject(className).setPropertyValue(name, value, options);
+        static setStaticPropertyValue<T>(className: any, name: string, validator: PropertyValueType, value: T, options: SetPropertyOptions = {}): T{
+            return PropertyTarget.getStaticObject(className).setPropertyValue(name, value, validator, options);
         }
 
-        static getStaticLazyProperty<T>(className: any, name: string, creator: () => T): T{
-            return PropertyTarget.getStaticObject(className).getLazyProperty(name, creator);
+        static getStaticLazyProperty<T>(className: any, name: string, validator: PropertyValueType, creator: () => T): T{
+            return PropertyTarget.getStaticObject(className).getLazyProperty(name, validator, creator);
         }
+
         //endregion
 
         //region Private
@@ -317,6 +322,33 @@ export namespace latte{
             this.raise('didSet' + _camelCase(e.property), e);
         }
 
+        protected valid<T>(value: T, validator: PropertyValueType): boolean{
+
+            if(validator === null) {
+                // HACK: this should not be possible.
+                return true;
+            }
+
+            if(validator === (Number as any)) {
+                return _isNumber(value);
+
+            }else if(validator === Boolean) {
+                return _isBoolean(value);
+
+            }else if(validator === String) {
+                return _isString(value);
+
+            }else if(validator === Any){
+                return true;
+
+            }else{
+                return value instanceof validator;
+            }
+
+
+            return true;
+        }
+
         //endregion
 
         //region Methods
@@ -327,7 +359,7 @@ export namespace latte{
          * @param withDefault
          * @returns {any}
          */
-        protected getPropertyValue(name: string, withDefault: any = undefined):any{
+        protected getPropertyValue(name: string, validator: PropertyValueType, withDefault: any = undefined):any{
             if(!(name in this.propertyValues)) {
                 this.propertyValues[name] = withDefault;
             }
@@ -340,7 +372,7 @@ export namespace latte{
          * @param {() => T} creator
          * @returns {T}
          */
-        protected getLazyProperty<T>(name: string, creator: () => T): T{
+        protected getLazyProperty<T>(name: string, validator: PropertyValueType, creator: () => T): T{
             if(!(name in this.propertyValues)) {
                 this.propertyValues[name] = creator();
             }
@@ -361,9 +393,9 @@ export namespace latte{
          * @param {string} name
          * @param value
          */
-        protected setPropertyValue<T>(name: string, value: T, options: SetPropertyOptions = {}): T{
+        protected setPropertyValue<T>(name: string, value: T, validator: PropertyValueType, options: SetPropertyOptions = {}): T{
 
-            let oldValue = this.getPropertyValue(name);
+            let oldValue = this.getPropertyValue(name, validator);
             let data = {
                 property: name,
                 oldValue: oldValue,
@@ -375,6 +407,10 @@ export namespace latte{
 
             // Check if a true change was done
             let changed = oldValue !== data.newValue;
+
+            if(!this.valid(data.newValue, validator)){
+                throw "Invalid property value";
+            }
 
             // Only change if different value
             if(changed) {
@@ -393,12 +429,12 @@ export namespace latte{
 
         /**
          * Sets the values of more than one property
-         * @param {{[p: string]: any}} values
+         * @param {{[name: string]: any}} values
          * @returns {this}
          */
         protected setPropertyValues(values: {[name: string]: any}): this{
             for(let i in values){
-                this.setPropertyValue(i, values[i]);
+                this.setPropertyValue(i, values[i], null);
             }
             return this;
         }
@@ -635,7 +671,7 @@ export namespace latte{
          * Gets the black color
          */
         static get black(): Color {
-            return PropertyTarget.getStaticLazyProperty(Color, 'black', () => {
+            return PropertyTarget.getStaticLazyProperty(Color, 'black', Color, () => {
                 return new Color(0,0,0);
             });
         }
@@ -644,7 +680,7 @@ export namespace latte{
          * Gets the white color
          */
         static get white(): Color {
-            return PropertyTarget.getStaticLazyProperty(Color, 'white', () => {
+            return PropertyTarget.getStaticLazyProperty(Color, 'white', Color, () => {
                 return new Color(255, 255, 255);
             });
         }
@@ -653,7 +689,7 @@ export namespace latte{
          * Gets the red color
          */
         static get red(): Color {
-            return PropertyTarget.getStaticLazyProperty(Color, 'red', () => {
+            return PropertyTarget.getStaticLazyProperty(Color, 'red', Color,() => {
                 return new Color(255, 0, 0);
             });
         }
@@ -662,7 +698,7 @@ export namespace latte{
          * Gets the green color
          */
         static get green(): Color {
-            return PropertyTarget.getStaticLazyProperty(Color, 'green', () => {
+            return PropertyTarget.getStaticLazyProperty(Color, 'green', Color,() => {
                 return new Color(0, 128, 0);
             });
         }
@@ -671,7 +707,7 @@ export namespace latte{
          * Gets the blue color
          */
         static get blue(): Color {
-            return PropertyTarget.getStaticLazyProperty(Color, 'blue', () => {
+            return PropertyTarget.getStaticLazyProperty(Color, 'blue', Color, () => {
                 return new Color(0, 0, 255);
             });
         }
@@ -680,7 +716,7 @@ export namespace latte{
          * Gets the transparent color
          */
         static get transparent(): Color {
-            return PropertyTarget.getStaticLazyProperty(Color, 'transparent', () => {
+            return PropertyTarget.getStaticLazyProperty(Color, 'transparent', Color, () => {
                 return new Color(0,0,0,0);
             });
         }
@@ -795,7 +831,7 @@ export namespace latte{
          * @param {number} value
          */
         set a(value: number) {
-            this.setPropertyValue('a', value);
+            this.setPropertyValue('a', value, Number);
         }
 
         /**
@@ -811,7 +847,7 @@ export namespace latte{
          * @param {number} value
          */
         set b(value: number) {
-            this.setPropertyValue('b', value);
+            this.setPropertyValue('b', value, Number);
         }
 
         /**
@@ -836,7 +872,7 @@ export namespace latte{
          * @param {number} value
          */
         set g(value: number) {
-            this.setPropertyValue('g', value);
+            this.setPropertyValue('g', value, Number);
         }
 
         /**
@@ -918,7 +954,7 @@ export namespace latte{
          * @param {number} value
          */
         set r(value: number) {
-            this.setPropertyValue('r', value);
+            this.setPropertyValue('r', value, Number);
         }
         //endregion
     }
@@ -931,42 +967,22 @@ export namespace latte{
         millis: number = 0;
 
         /**
-         * Returns the maximum possible integer
-         * @param {number} n
-         * @returns {boolean}
-         */
-        static get MAX_SAFE_INTEGER(): number{
-            return (Number as any).MAX_SAFE_INTEGER;
-        }
-
-        /**
-         * Returns the minimum possible integer
-         * @param {number} n
-         * @returns {boolean}
-         */
-        static get MIN_SAFE_INTEGER(): number{
-            return (Number as any).MIN_SAFE_INTEGER;
-        }
-
-        /**
-         * Gets the maximum possible value
+         * Gets the maximum representable TimeSpan
          */
         static get MAX_VALUE(): TimeSpan {
-            return PropertyTarget.getStaticLazyProperty(TimeSpan, 'MAX_VALUE', () => {
-                return new TimeSpan();
+            return PropertyTarget.getStaticLazyProperty(TimeSpan, 'MAX_VALUE', TimeSpan, () => {
+                return TimeSpan.fromMilliseconds(Number.MAX_SAFE_INTEGER);
             });
         }
-
 
         /**
-         * Gets the minimum possible value
+         * Gets the minimum representable TimeSpan
          */
         static get MIN_VALUE(): TimeSpan {
-            return PropertyTarget.getStaticLazyProperty(TimeSpan, 'MIN_VALUE', () => {
-                return new TimeSpan();
+            return PropertyTarget.getStaticLazyProperty(TimeSpan, 'MIN_VALUE', TimeSpan, () => {
+                return TimeSpan.fromMilliseconds(Number.MIN_SAFE_INTEGER * -1).negate();
             });
         }
-
 
         /**
          * Creates a TimeSpan from the specified amount of days
@@ -1005,9 +1021,12 @@ export namespace latte{
          **/
         static fromMilliseconds(milliseconds: number): TimeSpan{
 
-            let t = new TimeSpan();
+            let negate = milliseconds < 0;
+            let t = new TimeSpan(0,0,0,0, Math.abs(milliseconds));
 
-            t.millis = milliseconds;
+            if(negate) {
+                t.negate();
+            }
 
             return t;
 
@@ -1110,15 +1129,6 @@ export namespace latte{
         }
 
         /**
-         * Tells if the passed number is a safe integer
-         * @param {number} n
-         * @returns {boolean}
-         */
-        static isSafe(n: number): boolean{
-            return (Number as any).isSafeInteger(n);
-        }
-
-        /**
          * Creates the TimeSpan with the specified parameters. Parameters not specified will be asumed to be zero.
          **/
         constructor(days: number = 0, hours: number = 0, minutes: number = 0, seconds: number = 0, milliseconds: number = 0){
@@ -1130,6 +1140,10 @@ export namespace latte{
             }
 
             this.millis = (days * 86400 + hours * 3600 + minutes * 60 + seconds) * 1000 + milliseconds;
+
+            if(!Number.isSafeInteger(this.millis)) {
+                throw "Total milliseconds must be a safe integer";
+            }
 
         }
 
@@ -1345,8 +1359,17 @@ export namespace latte{
          * Gets the maximum representable date
          */
         static get MAX_VALUE(): DateTime {
-            return PropertyTarget.getStaticLazyProperty(DateTime, 'MAX_VALUE', () => {
-                return DateTime.fromMilliseconds((Number as any).MAX_SAFE_INTEGER);
+            return PropertyTarget.getStaticLazyProperty(DateTime, 'MAX_VALUE', DateTime,() => {
+                return DateTime.fromMilliseconds(Number.MAX_SAFE_INTEGER);
+            });
+        }
+
+        /**
+         * Gets the minimum representable date
+         */
+        static get MIN_VALUE(): DateTime {
+            return PropertyTarget.getStaticLazyProperty(DateTime, 'MIN_VALUE', DateTime, () => {
+                return new DateTime(1, 1, 1);
             });
         }
 
@@ -1414,7 +1437,7 @@ export namespace latte{
         static fromString(dateTimeString: string): DateTime{
 
             if(dateTimeString.length === 0)
-                return new DateTime();
+                throw "Invalid date format";
 
             let year = 0, month = 0, day = 0, hour = 0, minute = 0, second = 0;
             let parts = dateTimeString.split(' ');
@@ -1425,6 +1448,11 @@ export namespace latte{
                 year = parseInt(dateParts[0], 10);
                 month = parseInt(dateParts[1], 10);
                 day = parseInt(dateParts[2], 10);
+
+                if(isNaN(year) || isNaN(month) || isNaN(day)){
+                    throw "Date has invalid numbers";
+                }
+
             }else{
                 throw "Invalid date format";
             }
@@ -2004,20 +2032,14 @@ export namespace latte{
         }
 
         /**
-         * Returns an empty point
-         * @returns {latte.Point}
+         * Gets an empty point
          */
-        static get empty(): Point{
-            return new Point(null, null);
+        static get origin(): Point {
+            return PropertyTarget.getStaticLazyProperty(Point, 'origin', Point, () => {
+                return new Point(0, 0);
+            });
         }
 
-        /**
-         * Returns a point situated on the origin
-         * @returns {latte.Point}
-         */
-        static get origin(): Point{
-            return new Point(0, 0);
-        }
 
         //endregion
 
@@ -2027,8 +2049,8 @@ export namespace latte{
         constructor(x: number = null, y: number = null) {
             super();
 
-            this.setPropertyValue('x', x);
-            this.setPropertyValue('y', y);
+            this.setPropertyValue('x', x, Number);
+            this.setPropertyValue('y', y, Number);
         }
 
         //region Methods
@@ -2081,14 +2103,6 @@ export namespace latte{
         //endregion
 
         //region Properties
-        /**
-         * Gets a value indicating if the point is empty (No value has been set)
-         *
-         * @returns {boolean}
-         */
-        public get isEmpty():boolean {
-            return this.x == null || this.y == null;
-        }
 
         /**
          * Gets a value indicating if the Point is the origin
@@ -2124,29 +2138,23 @@ export namespace latte{
 
         //region Static
         /**
-         * Returns an empty size
-         * @returns {latte.Size}
+         * Gets the default empty size
          */
-        static get empty(): Size{
-            return new Size(null, null);
+        static get empty(): Size {
+            return PropertyTarget.getStaticLazyProperty(Size, 'empty', Size, () => {
+                return new Size(0, 0);
+            });
         }
 
-        /**
-         * Returns a size of zero width and zero height
-         * @returns {latte.Point}
-         */
-        static get zero(): Size{
-            return new Size(0, 0);
-        }
         //endregion
 
         /**
          * Creates a new Size, optionally sets its Width and Height components
          */
-        constructor(width: number = null, height: number = null) {
+        constructor(width: number = 0, height: number = 0) {
             super();
-            this.setPropertyValue('width', width);
-            this.setPropertyValue( 'height', height);
+            this.setPropertyValue('width', width, Number);
+            this.setPropertyValue( 'height', height, Number);
         }
 
         //region Methods
@@ -2247,7 +2255,7 @@ export namespace latte{
          * @returns {boolean}
          */
         public get isEmpty():boolean {
-            return this.width == null || this.height == null;
+            return this.width === 0 || this.height === 0;
         }
 
         /**
@@ -2278,16 +2286,6 @@ export namespace latte{
         }
 
         /**
-         * Gets a value indicating if the size is of zero dimensions
-         *
-         * @returns {boolean}
-         */
-        get isZero(): boolean {
-            return this.width === 0 && this.height === 0;
-        }
-
-
-        /**
          * Gets the height of the size
          */
         get height(): number {
@@ -2311,14 +2309,6 @@ export namespace latte{
     export class Rectangle extends PropertyTarget{
 
         //region Static
-
-        /**
-         * Returns a new empty rectangle with null dimensions
-         * @returns {latte.Rectangle}
-         */
-        static get empty(): Rectangle{
-            return new Rectangle(null, null, null, null);
-        }
 
         /**
          * Returns a rectangle at (0,0) of 0 dimensions
@@ -2381,10 +2371,10 @@ export namespace latte{
          **/
         constructor(left: number = 0, top: number = 0, width: number = 0, height: number = 0){
             super();
-            this.setPropertyValue('top', top);
-            this.setPropertyValue('left', left);
-            this.setPropertyValue('width', width);
-            this.setPropertyValue('height', height);
+            this.setPropertyValue('top', top, Number);
+            this.setPropertyValue('left', left, Number);
+            this.setPropertyValue('width', width, Number);
+            this.setPropertyValue('height', height, Number);
 
         }
 
@@ -2497,7 +2487,7 @@ export namespace latte{
                 return new Rectangle(x1, y1, x2 - x1, y2 - y1);
             }
 
-            return new Rectangle();
+            return Rectangle.zero;
 
         }
 
@@ -2648,17 +2638,8 @@ export namespace latte{
          *
          * @returns {boolean}
          */
-        get isEmpty(): boolean {
-            return this.size.isEmpty && this.location.isEmpty;
-        }
-
-        /**
-         * Gets a value indicating if the rectangle is at (0,0) of zero dimensions
-         *
-         * @returns {boolean}
-         */
         get isZero(): boolean {
-            return this.location.isOrigin && this.size.isZero;
+            return this.size.isEmpty && this.location.isOrigin;
         }
 
         /**
@@ -2733,7 +2714,7 @@ export namespace latte{
          * @param {any} value
          */
         set tag(value: any) {
-            this.setPropertyValue('tag', value);
+            this.setPropertyValue('tag', value, Any);
         }
 
         /**

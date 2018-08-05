@@ -3,11 +3,11 @@ import {animation} from "./animation";
 
 export namespace ui{
 
-    import _undef = latte._undef;
     import Animation = animation.Animation;
     import DateTime = latte.DateTime;
     import PropertyTarget = latte.PropertyTarget;
     import DidSet = latte.DidSet;
+    import Any = latte.Any;
 
     export enum LanguageDirection{
         AUTO,
@@ -48,7 +48,7 @@ export namespace ui{
                 throw "HTMLElement Needed";
             }
 
-            this.setPropertyValue('raw', raw);
+            this.setPropertyValue('raw', raw, HTMLElement);
         }
 
         //region Private Methods
@@ -135,7 +135,7 @@ export namespace ui{
                 if(!this.hasPropertyValue(p)) {
                     this.setCssNumericValue(p, value);
                 }else {
-                    this.setPropertyValue(p, value);
+                    this.setPropertyValue(p, value, Any);
                 }
             };
 
@@ -191,7 +191,7 @@ export namespace ui{
                 if(!this.hasPropertyValue(p)) {
                     return this.getCssNumericValue(p);
                 }else {
-                    return this.getPropertyValue(p);
+                    return this.getPropertyValue(p, Any);
                 }
             };
 
@@ -317,7 +317,7 @@ export namespace ui{
          * Gets the raw HTML element
          */
         get raw(): T {
-            return this.getPropertyValue('raw', undefined);
+            return this.getPropertyValue('raw', HTMLElement, undefined);
         }
 
         /**
@@ -349,7 +349,7 @@ export namespace ui{
          * Gets or sets the direction of language
          */
         get langDirection(): LanguageDirection {
-            return this.getPropertyValue('langDirection', LanguageDirection.AUTO);
+            return this.getPropertyValue('langDirection', LanguageDirection, LanguageDirection.AUTO);
         }
 
         /**
@@ -358,7 +358,7 @@ export namespace ui{
          * @param {LanguageDirection} value
          */
         set langDirection(value: LanguageDirection) {
-            this.setPropertyValue('langDirection', value);
+            this.setPropertyValue('langDirection', value, LanguageDirection);
         }
 
         //endregion
@@ -417,7 +417,7 @@ export namespace ui{
          * Gets or sets the text of the label
          */
         get text(): string {
-            return this.getPropertyValue('text', null);
+            return this.getPropertyValue('text', String,null);
         }
 
         /**
@@ -426,7 +426,7 @@ export namespace ui{
          * @param {string} value
          */
         set text(value: string) {
-            this.setPropertyValue('text', value);
+            this.setPropertyValue('text', value, String);
         }
         //endregion
 
@@ -436,7 +436,7 @@ export namespace ui{
          * Gets the description element
          */
         get divDescription(): DivElement {
-            return this.getLazyProperty('divDescription', () => {
+            return this.getLazyProperty('divDescription', DivElement, () => {
                 return new DivElement('description');
             });
         }
@@ -445,7 +445,7 @@ export namespace ui{
          * Gets the text element
          */
         get divText(): DivElement {
-            return this.getLazyProperty('divText', () => {
+            return this.getLazyProperty('divText', DivElement,() => {
                 return new DivElement('text');
             });
         }
@@ -490,7 +490,7 @@ export namespace ui{
          * Gets or sets a flag indicating if the item is selected
          */
         get selected(): boolean {
-            return this.getPropertyValue('selected', null);
+            return this.getPropertyValue('selected', Boolean,null);
         }
 
         /**
@@ -499,7 +499,7 @@ export namespace ui{
          * @param {boolean} value
          */
         set selected(value: boolean) {
-            this.setPropertyValue('selected', value);
+            this.setPropertyValue('selected', value, Boolean);
         }
 
         //endregion
@@ -510,7 +510,7 @@ export namespace ui{
          * Gets the label
          */
         get divLabel(): Label {
-            return this.getLazyProperty('divLabel', () => {
+            return this.getLazyProperty('divLabel', Label, () => {
                 return new Label();
             });
         }
