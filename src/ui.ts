@@ -245,6 +245,15 @@ export namespace ui{
         }
 
         /**
+         * Gets the attribute of the element
+         * @param {string} name
+         * @returns {any}
+         */
+        getAtt(name: string): any{
+            return this.raw.getAttribute(name);
+        }
+
+        /**
          * Returns a value indicating if the class is present in the element
          * @param {string} className
          * @returns {boolean}
