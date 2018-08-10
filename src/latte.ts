@@ -359,7 +359,7 @@ export namespace latte{
          * @param withDefault
          * @returns {any}
          */
-        protected getPropertyValue(name: string, validator: PropertyValueType, withDefault: any = undefined):any{
+        protected getPropertyValue(name: string, validator: PropertyValueType, withDefault: any):any{
             if(!(name in this.propertyValues)) {
                 this.propertyValues[name] = withDefault;
             }
@@ -376,7 +376,7 @@ export namespace latte{
             if(!(name in this.propertyValues)) {
                 this.propertyValues[name] = creator();
             }
-            return this.getPropertyValue(name, undefined);
+            return this.getPropertyValue(name, validator, undefined);
         }
 
         /**
@@ -395,7 +395,7 @@ export namespace latte{
          */
         protected setPropertyValue<T>(name: string, value: T, validator: PropertyValueType, options: SetPropertyOptions = {}): T{
 
-            let oldValue = this.getPropertyValue(name, validator);
+            let oldValue = this.getPropertyValue(name, validator, undefined);
             let data = {
                 property: name,
                 oldValue: oldValue,
@@ -822,7 +822,7 @@ export namespace latte{
          * Gets or sets the alpha component (0 to 255)
          */
         get a(): number {
-            return this.getPropertyValue('a', 255);
+            return this.getPropertyValue('a', Number,255);
         }
 
         /**
@@ -838,7 +838,7 @@ export namespace latte{
          * Gets or sets the blue component (0 to 255)
          */
         get b(): number {
-            return this.getPropertyValue('b', 0);
+            return this.getPropertyValue('b', Number, 0);
         }
 
         /**
@@ -863,7 +863,7 @@ export namespace latte{
          * Gets or sets the green component of the color (0 to 255)
          */
         get g(): number {
-            return this.getPropertyValue('g', 0);
+            return this.getPropertyValue('g', Number, 0);
         }
 
         /**
@@ -945,7 +945,7 @@ export namespace latte{
          * Gets or sets the red component of the color (0 to 255)
          */
         get r(): number {
-            return this.getPropertyValue('r', 0);
+            return this.getPropertyValue('r', Number, 0);
         }
 
         /**
@@ -1741,7 +1741,6 @@ export namespace latte{
          **/
         subtractDate(datetime: DateTime): TimeSpan{
             return TimeSpan.fromMilliseconds(this._span.millis - datetime._span.millis);
-
         }
 
         /**
@@ -2118,14 +2117,14 @@ export namespace latte{
          * Gets the x component of the point
          */
         get x(): number {
-            return this.getPropertyValue('x', null);
+            return this.getPropertyValue('x', Number, null);
         }
 
         /**
          * Gets the y component of the point
          */
         get y(): number {
-            return this.getPropertyValue('y', null);
+            return this.getPropertyValue('y', Number, null);
         }
 
         //endregion
@@ -2289,14 +2288,14 @@ export namespace latte{
          * Gets the height of the size
          */
         get height(): number {
-            return this.getPropertyValue('height', null);
+            return this.getPropertyValue('height', Number, null);
         }
 
         /**
          * Gets the width of the size
          */
         get width(): number {
-            return this.getPropertyValue('width', null);
+            return this.getPropertyValue('width', Number, null);
         }
 
 
@@ -2630,7 +2629,7 @@ export namespace latte{
          * Gets the height of the rectangle
          */
         get height(): number {
-            return this.getPropertyValue('height', null);
+            return this.getPropertyValue('height', Number, null);
         }
 
         /**
@@ -2673,7 +2672,7 @@ export namespace latte{
          * Gets the left of the rectangle
          */
         get left(): number {
-            return this.getPropertyValue('left', null);
+            return this.getPropertyValue('left', Number, null);
         }
 
         /**
@@ -2705,7 +2704,7 @@ export namespace latte{
          * Gets or sets the tag of the rectangle
          */
         get tag(): any {
-            return this.getPropertyValue('tag', null);
+            return this.getPropertyValue('tag', Any, null);
         }
 
         /**
@@ -2721,14 +2720,14 @@ export namespace latte{
          * Gets the top of the rectangle
          */
         get top(): number {
-            return this.getPropertyValue('top', null);
+            return this.getPropertyValue('top', Number, null);
         }
 
         /**
          * Gets the width of the rectangle
          */
         get width(): number {
-            return this.getPropertyValue('width', null);
+            return this.getPropertyValue('width', Number, null);
         }
 
         //endregion

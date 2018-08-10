@@ -2,13 +2,73 @@ import { ui } from '../src/ui';
 import { expect } from 'chai';
 import 'mocha';
 import Element = ui.Element;
+import Animation = ui.Animation;
 import {latte} from "../src/latte";
 import _repeat = latte._repeat;
+import DateTime = latte.DateTime;
 
 
 let randomRange = (min: number, max: number) => Math.floor(Math.random() * (max - min)) + min;
 let randomChar = () => String.fromCharCode(randomRange(97, 122));
 let randomString = (len: number = 10) => (new Array(len) as any).fill('').reduce((a:string) => a + randomChar());
+
+describe('Animation', () => {
+
+
+    it('should scroll an int', function () {
+        let a = new Animation(0, 10, 10);
+
+        expect(a.getValueForSecond(0)).to.be.equals(0);
+        expect(a.getValueForSecond(1)).to.be.equals(1);
+        expect(a.getValueForSecond(2)).to.be.equals(2);
+        expect(a.getValueForSecond(3)).to.be.equals(3);
+        expect(a.getValueForSecond(4)).to.be.equals(4);
+        expect(a.getValueForSecond(5)).to.be.equals(5);
+        expect(a.getValueForSecond(6)).to.be.equals(6);
+        expect(a.getValueForSecond(7)).to.be.equals(7);
+        expect(a.getValueForSecond(8)).to.be.equals(8);
+        expect(a.getValueForSecond(9)).to.be.equals(9);
+        expect(a.getValueForSecond(10)).to.be.equals(10);
+        expect(a.getValueForSecond(11)).to.be.equals(11);
+
+    });
+
+    it('should scroll an int throw a clock', function () {
+        // Lets try to drag an int value from 0 to 10 in 10 steps
+        let theValue = 0;
+        let a = new Animation(0, 10, 10);
+        let clock = DateTime.MIN_VALUE;
+        let checks: number[] = [];
+        let second = 0;
+
+        // This supplies a clock to the animator
+        a.nowSupplier = () => clock;
+
+        // Set the start date to the clock
+        a.updateStartDate();
+
+        _repeat(10, () => {
+
+            // Get current value
+            let cur = a.currentValue;
+
+            // Add value to check list
+            checks.push(cur);
+
+            // Assert
+            expect(cur).to.be.equals(second);
+
+            // Increment clock;
+            clock = clock.addSeconds(1);
+
+            second++;
+
+        });
+
+    });
+
+
+});
 
 describe('Element', () => {
 
