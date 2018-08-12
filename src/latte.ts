@@ -264,7 +264,7 @@ export namespace latte{
 
     export type PropertyValueType = any;// (...any: any[]) => any | Function;
 
-    export class Any{};// (...any: any[]) => any | Function;
+    export class Any{}// (...any: any[]) => any | Function;
 
     /**
      * Gives an object property capabilities
@@ -437,6 +437,93 @@ export namespace latte{
                 this.setPropertyValue(i, values[i], null);
             }
             return this;
+        }
+
+        //endregion
+
+    }
+
+    /**
+     * Inspired in Java's Optional
+     */
+    export class Optional<T> extends PropertyTarget{
+
+        //region Static
+
+        /**
+         * Returns an optional with no value
+         * @returns {latte.Optional<V>}
+         */
+        static empty<V>(): Optional<V>{
+            return new Optional<V>(null);
+        }
+
+        /**
+         * Returns an optional of specified value
+         * @param {V} value
+         * @returns {latte.Optional<V>}
+         */
+        static of<V>(value: V): Optional<V>{
+            return new Optional(value);
+        }
+        //endregion
+
+        //region Fields
+        private readonly value: T;
+        //endregion
+
+        constructor(value: T){
+            super();
+            this.value = value;
+        }
+
+        //region Methods
+
+        /**
+         * Executes the callback if a value is present
+         * @param {(result: T) => void} callback
+         */
+        ifPresent(callback: (result: T) => void){
+            if(this.isPresent) {
+                callback(this.value);
+            }
+        }
+
+        /**
+         * Returns the value (if present), specified value if not.
+         * @param {T} value
+         * @returns {T}
+         */
+        orElse(value: T): T{
+            if(this.isPresent) {
+                return this.value;
+            }else{
+                return value;
+            }
+        }
+
+        /**
+         * Throws the specified object if no value present
+         * @param ex
+         */
+        orElseThrow(ex: any = "Value Needed"): T{
+            if(!this.isPresent) {
+                throw ex;
+            }
+            return this.value;
+        }
+
+        //endregion
+
+        //region Properties
+
+        /**
+         * Gets a value indicating if there is a value present
+         *
+         * @returns {boolean}
+         */
+        get isPresent(): boolean {
+            return this.value !== null;
         }
 
         //endregion

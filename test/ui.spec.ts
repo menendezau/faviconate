@@ -6,6 +6,9 @@ import Animation = ui.Animation;
 import {latte} from "../src/latte";
 import _repeat = latte._repeat;
 import DateTime = latte.DateTime;
+import UiElement = ui.UiElement;
+import LanguageDirection = ui.LanguageDirection;
+import DivElement = ui.DivElement;
 
 
 let randomRange = (min: number, max: number) => Math.floor(Math.random() * (max - min)) + min;
@@ -234,6 +237,69 @@ describe('Element', () => {
 
         });
 
+
+    });
+
+    it('should animate', function () {
+
+        class MyElement extends Element<HTMLDivElement>{
+            get value(): number {
+                return this.getPropertyValue('value', Number, 0);
+            }
+            set value(value: number) {
+                this.setPropertyValue('value', value, Number);
+            }
+        }
+
+        let e = new MyElement(document.createElement('div'));
+
+        e.animate({
+            value: 100
+        }, 1)
+
+    });
+
+});
+
+describe('UiElement', () => {
+
+    it('should langDirection', function () {
+
+        let e = new UiElement(document.createElement('div'));
+
+        e.langDirection = LanguageDirection.LTR;
+
+        expect(e.getAtt('dir')).to.be.equals('ltr');
+
+        e.langDirection = LanguageDirection.RTL;
+
+        expect(e.getAtt('dir')).to.be.equals('rtl');
+
+        e.langDirection = LanguageDirection.AUTO;
+
+        expect(e.getAtt('dir')).to.be.equals('auto');
+
+    });
+
+});
+
+describe('DivElement', () => {
+
+    it('should Initialize with class', function () {
+
+        let cutsie = DivElement.withClass('cutsie');
+
+        expect(cutsie.hasClass('cutsie')).to.be.true;
+
+        let pretty = new DivElement('pretty');
+
+        expect(pretty.hasClass('pretty')).to.be.true;
+
+        let scratch = document.createElement('div');
+
+        let d = new DivElement(scratch);
+
+        expect(d.raw).to.be.equals(scratch);
 
     });
 

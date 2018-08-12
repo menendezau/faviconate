@@ -87,7 +87,7 @@ export namespace workspace{
          * Gets or sets the illustrator component
          */
         get illustrator(): T {
-            return this.getPropertyValue('illustrator', null);
+            return this.getPropertyValue('illustrator', Illustrator,null);
         }
 
         /**
@@ -96,7 +96,7 @@ export namespace workspace{
          * @param {T} value
          */
         set illustrator(value: T) {
-            this.setPropertyValue('illustrator', value);
+            this.setPropertyValue('illustrator', value, Illustrator);
         }
         //endregion
 
@@ -116,7 +116,7 @@ export namespace workspace{
          * Gets or sets a boolean indicating if the tool is currently active
          */
         get active(): boolean {
-            return this.getPropertyValue('active', false);
+            return this.getPropertyValue('active', Boolean,false);
         }
 
         /**
@@ -125,7 +125,7 @@ export namespace workspace{
          * @param {boolean} value
          */
         set active(value: boolean) {
-            this.setPropertyValue('active', value);
+            this.setPropertyValue('active', value, Boolean);
         }
 
         //endregion
@@ -158,7 +158,7 @@ export namespace workspace{
          * Gets or sets a value indicating if the plug-in is currently enabled
          */
         get enabled(): boolean {
-            return this.getPropertyValue('enabled', true);
+            return this.getPropertyValue('enabled', Boolean,true);
         }
 
         /**
@@ -167,7 +167,7 @@ export namespace workspace{
          * @param {boolean} value
          */
         set enabled(value: boolean) {
-            this.setPropertyValue('enabled', value);
+            this.setPropertyValue('enabled', value, Boolean);
         }
         //endregion
 
@@ -278,7 +278,7 @@ export namespace workspace{
          * Gets or sets the canvas
          */
         get canvas(): Canvas {
-            return this.getPropertyValue('canvas', null);
+            return this.getPropertyValue('canvas', Canvas,null);
         }
 
         /**
@@ -287,7 +287,7 @@ export namespace workspace{
          * @param {Canvas} value
          */
         set canvas(value: Canvas) {
-            this.setPropertyValue('canvas', value);
+            this.setPropertyValue('canvas', value, Canvas);
         }
 
         /**
@@ -308,7 +308,7 @@ export namespace workspace{
          * Gets or sets the active tool of the illustrator
          */
         get tool(): Tool<Illustrator> {
-            return this.getPropertyValue('tool', null);
+            return this.getPropertyValue('tool', Tool,null);
         }
 
         /**
@@ -317,7 +317,7 @@ export namespace workspace{
          * @param {Tool<Illustrator>} value
          */
         set tool(value: Tool<Illustrator>) {
-            this.setPropertyValue('tool', value);
+            this.setPropertyValue('tool', value, Tool);
         }
 
         //endregion
@@ -386,7 +386,7 @@ export namespace workspace{
                 this.raw.height = desiredHeight * scaleFactor;
                 this.raw.style.width = String(desiredWidth) + 'px';
                 this.raw.style.height = String(desiredHeight) + 'px';
-                this.setPropertyValue('context', this.raw.getContext('2d'));
+                this.setPropertyValue('context', this.raw.getContext('2d'), CanvasRenderingContext2D);
                 this.context.scale(scaleFactor, scaleFactor);
             }else{
                 this.raw.width = desiredWidth;
@@ -420,7 +420,7 @@ export namespace workspace{
          * Ends the draw() loop
          */
         endLoop(){
-            this.setPropertyValue('looping', false);
+            this.setPropertyValue('looping', false, Boolean);
         }
 
         /**
@@ -436,7 +436,7 @@ export namespace workspace{
                 let now = Date.now();
 
                 if((now - start) >= 1000) {
-                    this.setPropertyValue('fps', frames);
+                    this.setPropertyValue('fps', frames, Number);
                     start = now;
                     frames = 0;
                 }
@@ -449,7 +449,7 @@ export namespace workspace{
                 }
             };
 
-            this.setPropertyValue('looping', true);
+            this.setPropertyValue('looping', true, Boolean);
 
             window.requestAnimationFrame(loop);
 
@@ -501,7 +501,7 @@ export namespace workspace{
          * Gets the context of the canvas
          */
         get context(): CanvasRenderingContext2D {
-            return this.getLazyProperty('context', () => {
+            return this.getLazyProperty('context', CanvasRenderingContext2D, () => {
                 return this.raw.getContext('2d');
             });
         }
@@ -510,21 +510,21 @@ export namespace workspace{
          * Gets the current Frames per second rate
          */
         get fps(): number {
-            return this.getPropertyValue('fps', 0);
+            return this.getPropertyValue('fps', Number,0);
         }
 
         /**
          * Gets the height of the canvas
          */
         get height(): number {
-            return this.getPropertyValue('height', 0);
+            return this.getPropertyValue('height', Number, 0);
         }
 
         /**
          * Gets or sets the illustrator of the canvas
          */
         get illustrator(): Illustrator {
-            return this.getPropertyValue('illustrator', null);
+            return this.getPropertyValue('illustrator', Illustrator,null);
         }
 
         /**
@@ -533,21 +533,21 @@ export namespace workspace{
          * @param {Illustrator} value
          */
         set illustrator(value: Illustrator) {
-            this.setPropertyValue('illustrator', value);
+            this.setPropertyValue('illustrator', value, Illustrator);
         }
 
         /**
          * Gets a value indicating if the draw loop is active
          */
         get looping(): boolean {
-            return this.getPropertyValue('looping', true);
+            return this.getPropertyValue('looping', Boolean,true);
         }
 
         /**
          * Gets or sets the canvas theme
          */
         get theme(): CanvasTheme {
-            return this.getPropertyValue('theme', new CanvasTheme());
+            return this.getPropertyValue('theme', CanvasTheme, new CanvasTheme());
         }
 
         /**
@@ -556,14 +556,14 @@ export namespace workspace{
          * @param {CanvasTheme} value
          */
         set theme(value: CanvasTheme) {
-            this.setPropertyValue('theme', value);
+            this.setPropertyValue('theme', value, CanvasTheme);
         }
 
         /**
          * Gets the width of the canvas
          */
         get width(): number {
-            return this.getPropertyValue('width', 0);
+            return this.getPropertyValue('width', Number,0);
         }
 
 
@@ -595,7 +595,7 @@ export namespace workspace{
                 step:   step,
                 value:  value
             });
-            this.setPropertyValue('value', String(value), {silent: true});
+            this.setPropertyValue('value', String(value), String, {silent: true});
             this.divValue.html = String(value);
             return this;
         }
@@ -644,7 +644,7 @@ export namespace workspace{
          * Gets or sets the text of the element
          */
         get text(): string {
-            return this.getPropertyValue('text', null);
+            return this.getPropertyValue('text', String,null);
         }
 
         /**
@@ -653,14 +653,14 @@ export namespace workspace{
          * @param {string} value
          */
         set text(value: string) {
-            this.setPropertyValue('text', value);
+            this.setPropertyValue('text', value, String);
         }
 
         /**
          * Gets or sets the value of the element
          */
         get value(): string {
-            return this.getPropertyValue('value', null);
+            return this.getPropertyValue('value', String,null);
         }
 
         /**
@@ -669,7 +669,7 @@ export namespace workspace{
          * @param {string} value
          */
         set value(value: string) {
-            this.setPropertyValue('value', value);
+            this.setPropertyValue('value', value, String);
         }
 
         //endregion
@@ -680,7 +680,7 @@ export namespace workspace{
          * Gets the range element
          */
         get inpRange(): InputElement {
-            return this.getLazyProperty('inpRange', () => {
+            return this.getLazyProperty('inpRange', InputElement, () => {
                 return new InputElement()
                     .setAtts({type: 'range'})
                     .addEventListener('input', () => this.value = this.inpRange.raw.value)
@@ -692,7 +692,7 @@ export namespace workspace{
          * Gets the text element
          */
         get divText(): DivElement {
-            return this.getLazyProperty('divText', () => {
+            return this.getLazyProperty('divText', DivElement,() => {
                 return new DivElement().addClass('text');
             });
         }
@@ -701,7 +701,7 @@ export namespace workspace{
          * Gets the value element
          */
         get divValue(): DivElement {
-            return this.getLazyProperty('divValue', () => {
+            return this.getLazyProperty('divValue', DivElement,() => {
                 return new DivElement().addClass('value');
             });
         }
@@ -722,7 +722,7 @@ export namespace workspace{
         constructor(illustrator: Illustrator){
             super('workspace');
 
-            this.setPropertyValue('illustrator', illustrator);
+            this.setPropertyValue('illustrator', illustrator, Illustrator);
         }
 
         //region Methods
@@ -764,7 +764,7 @@ export namespace workspace{
          * Gets the brightness slider
          */
         get brightnessSlider(): Slider {
-            return this.getLazyProperty('brightnessSlider', () => {
+            return this.getLazyProperty('brightnessSlider', Slider, () => {
                 return new Slider("Brightness")
                     .attachTo(this.sidebar);
             });
@@ -774,7 +774,7 @@ export namespace workspace{
          * Gets the canvas
          */
         get canvas(): Canvas {
-            return this.getLazyProperty('canvas', () => {
+            return this.getLazyProperty('canvas', Canvas,() => {
                 return new Canvas(this.illustrator);
             });
         }
@@ -783,7 +783,7 @@ export namespace workspace{
          * Gets the contrast slider
          */
         get contrastSlider(): Slider {
-            return this.getLazyProperty('contrastSlider', () => {
+            return this.getLazyProperty('contrastSlider', Slider,() => {
                 return new Slider("Contrast")
                     .attachTo(this.sidebar);
             });
@@ -793,7 +793,7 @@ export namespace workspace{
          * Gets the Fps element
          */
         get divFps(): DivElement {
-            return this.getLazyProperty('divFps', () => {
+            return this.getLazyProperty('divFps', DivElement,() => {
                 return new DivElement('fps');
             });
         }
@@ -802,14 +802,14 @@ export namespace workspace{
          * Gets the illustrator
          */
         get illustrator(): Illustrator {
-            return this.getPropertyValue('illustrator', undefined);
+            return this.getPropertyValue('illustrator', Illustrator,undefined);
         }
 
         /**
          * Gets the sidebar
          */
         get sidebar(): DivElement {
-            return this.getLazyProperty('sidebar', () => {
+            return this.getLazyProperty('sidebar', DivElement, () => {
                 return new DivElement('sidebar');
             });
         }
@@ -818,7 +818,7 @@ export namespace workspace{
          * Gets the size slider
          */
         get sizeSlider(): Slider {
-            return this.getLazyProperty('sizeSlider', () => {
+            return this.getLazyProperty('sizeSlider', Slider,() => {
                 return new Slider("Size");
             });
         }
@@ -827,7 +827,7 @@ export namespace workspace{
          * Gets the height slider
          */
         get heightSlider(): Slider {
-            return this.getLazyProperty('heightSlider', () => {
+            return this.getLazyProperty('heightSlider', Slider,() => {
                 return new Slider("Height");
             });
         }
@@ -836,7 +836,7 @@ export namespace workspace{
          * Gets the width of the icon
          */
         get widthSlider(): Slider {
-            return this.getLazyProperty('widthSlider', () => {
+            return this.getLazyProperty('widthSlider', Slider,() => {
                 return new Slider("Width");
             });
         }
@@ -845,7 +845,7 @@ export namespace workspace{
          * Gets the colors slider
          */
         get colorSlider(): Slider {
-            return this.getLazyProperty('colorSlider', () => {
+            return this.getLazyProperty('colorSlider', Slider, () => {
                 return new Slider("Palette");
             });
         }

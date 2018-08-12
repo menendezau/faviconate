@@ -8,29 +8,194 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-define(["require", "exports", "./latte", "./animation"], function (require, exports, latte_1, animation_1) {
+define(["require", "exports", "./latte"], function (require, exports, latte_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var ui;
     (function (ui) {
-        var Animation = animation_1.animation.Animation;
         var DateTime = latte_1.latte.DateTime;
         var PropertyTarget = latte_1.latte.PropertyTarget;
+        var Any = latte_1.latte.Any;
         var LanguageDirection;
         (function (LanguageDirection) {
             LanguageDirection[LanguageDirection["AUTO"] = 0] = "AUTO";
             LanguageDirection[LanguageDirection["RTL"] = 1] = "RTL";
             LanguageDirection[LanguageDirection["LTR"] = 2] = "LTR";
         })(LanguageDirection = ui.LanguageDirection || (ui.LanguageDirection = {}));
+        var Animation = (function (_super) {
+            __extends(Animation, _super);
+            function Animation(startValue, endValue, duration, updateHandler, endHandler) {
+                if (updateHandler === void 0) { updateHandler = null; }
+                if (endHandler === void 0) { endHandler = null; }
+                var _this = _super.call(this) || this;
+                _this.setPropertyValues({
+                    duration: duration,
+                    startValue: startValue,
+                    endValue: endValue
+                });
+                if (updateHandler) {
+                    _this.on('update', updateHandler);
+                }
+                if (endHandler) {
+                    _this.on('ended', endHandler);
+                }
+                return _this;
+            }
+            Object.defineProperty(Animation, "requestAnimationFrame", {
+                get: function () {
+                    return window.requestAnimationFrame || (function () {
+                        var timeLast = 0;
+                        return window['webkitRequestAnimationFrame'] || function (callback) {
+                            var timeCurrent = (new Date()).getTime(), timeDelta;
+                            timeDelta = Math.max(0, 16 - (timeCurrent - timeLast));
+                            timeLast = timeCurrent + timeDelta;
+                            return setTimeout(function () { callback(timeCurrent + timeDelta); }, timeDelta);
+                        };
+                    })();
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Animation.loop = function () {
+                Animation.loopActive = true;
+                var now = DateTime.now;
+                var runningAnimations = 0;
+                for (var i = 0; i < Animation.stack.length; i++) {
+                    var a = Animation.stack[i];
+                    if (!a || !a.running)
+                        continue;
+                    var value = a.currentValue;
+                    if (now.compareTo(a.endTime) > 0 || value >= a.endValue) {
+                        a.setPropertyValue('running', false, Boolean);
+                        a.raise('update', a.endValue);
+                        a.raise('ended');
+                    }
+                    else {
+                        a.raise('update', a.endValue);
+                        runningAnimations++;
+                    }
+                }
+                if (runningAnimations > 0) {
+                    var rq = Animation.requestAnimationFrame;
+                    rq(Animation.loop);
+                }
+                else {
+                    Animation.stack = [];
+                    Animation.loopActive = false;
+                }
+            };
+            Animation.prototype.getValueForSecond = function (s) {
+                return this.startValue + (this.speed * s);
+            };
+            Animation.prototype.start = function () {
+                this.updateStartDate();
+                Animation.stack.push(this);
+                if (!Animation.loopActive)
+                    Animation.loop();
+            };
+            Animation.prototype.updateStartDate = function () {
+                this.setPropertyValue('startTime', this.nowSupplier(), DateTime);
+            };
+            Object.defineProperty(Animation.prototype, "currentValue", {
+                get: function () {
+                    return this.getValueForSecond((this.nowSupplier()).subtractDate(this.startTime).totalSeconds);
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(Animation.prototype, "distance", {
+                get: function () {
+                    return this.endValue - this.startValue;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(Animation.prototype, "duration", {
+                get: function () {
+                    return this.getPropertyValue('duration', Number, 0);
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(Animation.prototype, "endValue", {
+                get: function () {
+                    return this.getPropertyValue('endValue', Number, 0);
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(Animation.prototype, "endTime", {
+                get: function () {
+                    return this.startTime.addSeconds(this.duration);
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(Animation.prototype, "nowSupplier", {
+                get: function () {
+                    return this.getPropertyValue('nowSupplier', Any, function () { return DateTime.now; });
+                },
+                set: function (value) {
+                    this.setPropertyValue('nowSupplier', value, Any);
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(Animation.prototype, "running", {
+                get: function () {
+                    return this.getPropertyValue('running', Boolean, false);
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(Animation.prototype, "startValue", {
+                get: function () {
+                    return this.getPropertyValue('startValue', Number, undefined);
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(Animation.prototype, "startTime", {
+                get: function () {
+                    return this.getPropertyValue('startTime', DateTime, null);
+                },
+                set: function (value) {
+                    this.setPropertyValue('startTime', value, DateTime);
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(Animation.prototype, "speed", {
+                get: function () {
+                    return this.distance / this.duration;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(Animation.prototype, "tag", {
+                get: function () {
+                    return this.getPropertyValue('tag', Any, undefined);
+                },
+                set: function (value) {
+                    this.setPropertyValue('tag', value, Any);
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Animation.stack = [];
+            Animation.loopActive = false;
+            return Animation;
+        }(PropertyTarget));
+        ui.Animation = Animation;
         var Element = (function (_super) {
             __extends(Element, _super);
             function Element(raw) {
                 var _this = _super.call(this) || this;
-                _this._isBeingAnimated = false;
+                _this.animations = [];
                 if (!raw) {
                     throw "HTMLElement Needed";
                 }
-                _this.setPropertyValue('raw', raw);
+                _this.setPropertyValue('raw', raw, HTMLElement);
                 return _this;
             }
             Element.of = function (tagName) {
@@ -82,7 +247,7 @@ define(["require", "exports", "./latte", "./animation"], function (require, expo
                         _this.setCssNumericValue(p, value);
                     }
                     else {
-                        _this.setPropertyValue(p, value);
+                        _this.setPropertyValue(p, value, Any);
                     }
                 };
                 for (var p in startProperties) {
@@ -99,17 +264,18 @@ define(["require", "exports", "./latte", "./animation"], function (require, expo
                         }
                     });
                     leader_1.on('ended', function () {
-                        _this._isBeingAnimated = false;
+                        _this.setPropertyValue('isBeingAnimated', false, Boolean);
                     });
                     if (callback) {
                         leader_1.on('ended', callback);
                     }
-                    this._isBeingAnimated = true;
+                    this.setPropertyValue('isBeingAnimated', true, Boolean);
                     leader_1.start();
-                    for (var i = 1; i < animations.length; i++)
-                        animations[i].startTime = DateTime.now;
+                    animations.forEach(function (a) { return a.startTime = DateTime.now; });
                     return this;
                 }
+                this.animations = this.animations.concat(animations);
+                this.animations = this.animations.filter(function (a) { return a.running; });
             };
             Element.prototype.animate = function (properties, duration, callback) {
                 var _this = this;
@@ -121,7 +287,7 @@ define(["require", "exports", "./latte", "./animation"], function (require, expo
                         return _this.getCssNumericValue(p);
                     }
                     else {
-                        return _this.getPropertyValue(p);
+                        return _this.getPropertyValue(p, Any, undefined);
                     }
                 };
                 for (var p in properties) {
@@ -153,6 +319,9 @@ define(["require", "exports", "./latte", "./animation"], function (require, expo
                     this.removeClass(className);
                 }
                 return this;
+            };
+            Element.prototype.getAtt = function (name) {
+                return this.raw.getAttribute(name);
             };
             Element.prototype.hasClass = function (className) {
                 return this.raw.classList.contains(className);
@@ -186,14 +355,14 @@ define(["require", "exports", "./latte", "./animation"], function (require, expo
             });
             Object.defineProperty(Element.prototype, "raw", {
                 get: function () {
-                    return this.getPropertyValue('raw', undefined);
+                    return this.getPropertyValue('raw', HTMLElement, undefined);
                 },
                 enumerable: true,
                 configurable: true
             });
             Object.defineProperty(Element.prototype, "isBeingAnimated", {
                 get: function () {
-                    return this._isBeingAnimated;
+                    return this.getPropertyValue('isBeingAnimated', Boolean, false);
                 },
                 enumerable: true,
                 configurable: true
@@ -214,12 +383,28 @@ define(["require", "exports", "./latte", "./animation"], function (require, expo
             function UiElement() {
                 return _super !== null && _super.apply(this, arguments) || this;
             }
+            UiElement.prototype.didSet = function (e) {
+                _super.prototype.didSet.call(this, e);
+                if (e.property == 'langDirection') {
+                    switch (this.langDirection) {
+                        case LanguageDirection.AUTO:
+                            this.setAtt('dir', 'auto');
+                            break;
+                        case LanguageDirection.LTR:
+                            this.setAtt('dir', 'ltr');
+                            break;
+                        case LanguageDirection.RTL:
+                            this.setAtt('dir', 'rtl');
+                            break;
+                    }
+                }
+            };
             Object.defineProperty(UiElement.prototype, "langDirection", {
                 get: function () {
-                    return this.getPropertyValue('langDirection', LanguageDirection.AUTO);
+                    return this.getPropertyValue('langDirection', Any, LanguageDirection.AUTO);
                 },
                 set: function (value) {
-                    this.setPropertyValue('langDirection', value);
+                    this.setPropertyValue('langDirection', value, Any);
                 },
                 enumerable: true,
                 configurable: true
@@ -267,17 +452,17 @@ define(["require", "exports", "./latte", "./animation"], function (require, expo
             };
             Object.defineProperty(Label.prototype, "text", {
                 get: function () {
-                    return this.getPropertyValue('text', null);
+                    return this.getPropertyValue('text', String, null);
                 },
                 set: function (value) {
-                    this.setPropertyValue('text', value);
+                    this.setPropertyValue('text', value, String);
                 },
                 enumerable: true,
                 configurable: true
             });
             Object.defineProperty(Label.prototype, "divDescription", {
                 get: function () {
-                    return this.getLazyProperty('divDescription', function () {
+                    return this.getLazyProperty('divDescription', DivElement, function () {
                         return new DivElement('description');
                     });
                 },
@@ -286,7 +471,7 @@ define(["require", "exports", "./latte", "./animation"], function (require, expo
             });
             Object.defineProperty(Label.prototype, "divText", {
                 get: function () {
-                    return this.getLazyProperty('divText', function () {
+                    return this.getLazyProperty('divText', DivElement, function () {
                         return new DivElement('text');
                     });
                 },
@@ -317,17 +502,17 @@ define(["require", "exports", "./latte", "./animation"], function (require, expo
             };
             Object.defineProperty(Selectable.prototype, "selected", {
                 get: function () {
-                    return this.getPropertyValue('selected', null);
+                    return this.getPropertyValue('selected', Boolean, null);
                 },
                 set: function (value) {
-                    this.setPropertyValue('selected', value);
+                    this.setPropertyValue('selected', value, Boolean);
                 },
                 enumerable: true,
                 configurable: true
             });
             Object.defineProperty(Selectable.prototype, "divLabel", {
                 get: function () {
-                    return this.getLazyProperty('divLabel', function () {
+                    return this.getLazyProperty('divLabel', Label, function () {
                         return new Label();
                     });
                 },

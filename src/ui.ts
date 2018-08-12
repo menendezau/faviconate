@@ -282,6 +282,7 @@ export namespace ui{
 
     export class Element<T extends HTMLElement> extends PropertyTarget{
 
+        //region Static
         /**
          * Creates a new element by also creating the raw element.
          * @param {K} tagName
@@ -292,7 +293,10 @@ export namespace ui{
             return new Element<HTMLElementTagNameMap[K]>(raw);
         }
 
-        //region Static
+        //endregion
+
+        //region Fields
+        private animations: Animation[] = [];
         //endregion
 
         constructor(raw: T){
@@ -425,10 +429,18 @@ export namespace ui{
 
                 leader.start();
 
-                for (let i = 1; i < animations.length; i++) animations[i].startTime = DateTime.now;
+                // Update start time of animations
+                animations.forEach(
+                    a => a.startTime = DateTime.now);
 
                 return this;
             }
+
+            this.animations = this.animations.concat(animations);
+
+            // Clean animations array
+            this.animations = this.animations.filter(
+                a => a.running);
         }
 
         /**
@@ -603,13 +615,34 @@ export namespace ui{
      */
     export class UiElement<T extends HTMLElement> extends Element<T>{
 
+        //region Methods
+
+        /**
+         * Change Handler
+         * @param {latte.ChangedEvent} e
+         */
+        didSet(e: DidSet){
+            super.didSet(e);
+
+            if (e.property == 'langDirection'){
+                switch (this.langDirection) {
+                    case LanguageDirection.AUTO: this.setAtt('dir', 'auto'); break;
+                    case LanguageDirection.LTR: this.setAtt('dir', 'ltr'); break;
+                    case LanguageDirection.RTL: this.setAtt('dir', 'rtl'); break;
+                }
+            }
+
+        }
+
+        //endregion
+
         //region Properties
 
         /**
          * Gets or sets the direction of language
          */
         get langDirection(): LanguageDirection {
-            return this.getPropertyValue('langDirection', LanguageDirection, LanguageDirection.AUTO);
+            return this.getPropertyValue('langDirection', Any, LanguageDirection.AUTO);
         }
 
         /**
@@ -618,7 +651,7 @@ export namespace ui{
          * @param {LanguageDirection} value
          */
         set langDirection(value: LanguageDirection) {
-            this.setPropertyValue('langDirection', value, LanguageDirection);
+            this.setPropertyValue('langDirection', value, Any);
         }
 
         //endregion

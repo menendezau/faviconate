@@ -25,6 +25,7 @@ import TimeSpan = latte.TimeSpan;
 import Point = latte.Point;
 import Size = latte.Size;
 import Rectangle = latte.Rectangle;
+import Optional = latte.Optional;
 
 declare interface INumber{
     MAX_SAFE_INTEGER: number;
@@ -313,6 +314,55 @@ describe('PropertyTarget', function(){
         expect(didFlag).to.be.true;
         expect(willValue).to.be.equals('john');
         expect(didValue).to.be.equals('fixed');
+
+    });
+
+});
+
+describe('Optional', () => {
+
+    it('should initialize', function () {
+
+        let o1: Optional<number> = Optional.empty();
+        let o2: Optional<number> = Optional.of(10);
+
+        expect(o1.isPresent).to.be.false;
+        expect(o2.isPresent).to.be.true;
+
+    });
+
+    it('should work ifPresent()', function () {
+
+        let o1: Optional<number> = Optional.empty();
+        let o2: Optional<number> = Optional.of(10);
+        let f1: boolean = false;
+        let f2: boolean = false;
+
+        o1.ifPresent(_ => f1 = true);
+        o2.ifPresent(_ => f2 = true);
+
+        expect(f1).to.be.false;
+        expect(f2).to.be.true;
+
+    });
+
+    it('should work orElse()', function () {
+
+        let o1: Optional<number> = Optional.empty();
+        let o2: Optional<number> = Optional.of(10);
+
+        expect(o1.orElse(20)).to.be.equals(20);
+        expect(o2.orElse(20)).to.be.equals(10);
+
+    });
+
+    it('should work orElseThrow()', function () {
+
+        let o1: Optional<number> = Optional.empty();
+        let o2: Optional<number> = Optional.of(10);
+
+        expect(() => o1.orElseThrow("Check")).to.throw("Check");
+        expect(() => o2.orElseThrow("Check")).to.not.throw("Check");
 
     });
 
