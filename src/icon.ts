@@ -813,7 +813,8 @@ export namespace icon{
 
             if(!this.projection.isPresent && this.canvas && this.icon) {
                 this.setPropertyValue('projection',
-                    Optional.of(new IconProjection(this.icon, this.canvas)),
+                    Optional.of(
+                        new IconProjection(this.icon, this.canvas)),
                     Optional);
             }
 

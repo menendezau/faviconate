@@ -280,6 +280,12 @@ export namespace ui{
         //endregion
     }
 
+    /**
+     * Basic Element wrapper
+     * Events:
+     *  - attach: when the element is attached to the DOM
+     *  - detach: when the element is detached from the DOM
+     */
     export class Element<T extends HTMLElement> extends PropertyTarget{
 
         //region Static
@@ -676,17 +682,46 @@ export namespace ui{
         }
     }
 
+    export class Item extends DivElement{
+        constructor(e: HTMLDivElement | string = null){
+            super(e);
+
+            this.addClass('item');
+        }
+    }
+
     export class InputElement extends UiElement<HTMLInputElement>{
         constructor(e: HTMLInputElement = null){
             super(e || document.createElement('input'));
         }
     }
 
+    export class Icon extends Item{
+        constructor(){
+            super('icon');
+        }
+    }
+
     export class Label extends DivElement{
+
+        //region Fields
+        private divText: DivElement;
+        private divDesc: DivElement;
+        //endregion
 
         constructor(){
             super('label');
         }
+
+        //region Private Methods
+
+        private updateLayout(){
+
+            
+
+        }
+
+        //endregion
 
         //region Methods
 
@@ -697,8 +732,8 @@ export namespace ui{
         didSet(e: DidSet){
             super.didSet(e);
 
-            if (e.property == 'text'){
-                this.divText.html = this.text;
+            if (e.property == 'text' || e.property == 'description'){
+                this.updateLayout();
             }
 
         }
@@ -725,33 +760,19 @@ export namespace ui{
 
         //region Elements
 
-        /**
-         * Gets the description element
-         */
-        get divDescription(): DivElement {
-            return this.getLazyProperty('divDescription', DivElement, () => {
-                return new DivElement('description');
-            });
-        }
-
-        /**
-         * Gets the text element
-         */
-        get divText(): DivElement {
-            return this.getLazyProperty('divText', DivElement,() => {
-                return new DivElement('text');
-            });
-        }
-
-
         //endregion
 
     }
 
-    export class Clickable extends DivElement{
+    /**
+     * Represents a clickable item
+     */
+    export class Clickable extends Item{
 
         constructor(){
             super();
+
+            this.addEventListener('click', e => this.raise('click', e));
         }
 
     }

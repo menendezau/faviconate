@@ -748,7 +748,7 @@ export namespace workspace{
                     this.sizeSlider,
                     this.widthSlider,
                     this.heightSlider,
-                    this.colorSlider,
+                    this.colorSlider
                 ]);
 
                 // Update fps every half second

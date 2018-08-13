@@ -354,6 +354,16 @@ export namespace latte{
         //region Methods
 
         /**
+         * Deletes any value related to the property as it never was registered.
+         * @param {string} name
+         */
+        protected deleteProperty(name: string){
+            if(name in this.propertyValues) {
+                delete this.propertyValues[name];
+            }
+        }
+
+        /**
          * Gets the value of a property
          * @param {string} name
          * @param withDefault
@@ -393,7 +403,8 @@ export namespace latte{
          * @param {string} name
          * @param value
          */
-        protected setPropertyValue<T>(name: string, value: T, validator: PropertyValueType, options: SetPropertyOptions = {}): T{
+        protected setPropertyValue<T>(name: string, value: T, validator: PropertyValueType,
+                                      options: SetPropertyOptions = {}): T{
 
             let oldValue = this.getPropertyValue(name, validator, undefined);
             let data = {
@@ -424,6 +435,11 @@ export namespace latte{
                 }
             }
 
+            return value;
+        }
+
+        protected setPropertyUnsafe<T>(name: string, value: T): T{
+            this.propertyValues[name] = value;
             return value;
         }
 
