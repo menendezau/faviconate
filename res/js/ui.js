@@ -16,6 +16,7 @@ define(["require", "exports", "./latte"], function (require, exports, latte_1) {
         var DateTime = latte_1.latte.DateTime;
         var PropertyTarget = latte_1.latte.PropertyTarget;
         var Any = latte_1.latte.Any;
+        var Optional = latte_1.latte.Optional;
         var LanguageDirection;
         (function (LanguageDirection) {
             LanguageDirection[LanguageDirection["AUTO"] = 0] = "AUTO";
@@ -430,6 +431,17 @@ define(["require", "exports", "./latte"], function (require, exports, latte_1) {
             return DivElement;
         }(UiElement));
         ui.DivElement = DivElement;
+        var Item = (function (_super) {
+            __extends(Item, _super);
+            function Item(e) {
+                if (e === void 0) { e = null; }
+                var _this = _super.call(this, e) || this;
+                _this.addClass('item');
+                return _this;
+            }
+            return Item;
+        }(DivElement));
+        ui.Item = Item;
         var InputElement = (function (_super) {
             __extends(InputElement, _super);
             function InputElement(e) {
@@ -439,17 +451,176 @@ define(["require", "exports", "./latte"], function (require, exports, latte_1) {
             return InputElement;
         }(UiElement));
         ui.InputElement = InputElement;
+        var Icon = (function (_super) {
+            __extends(Icon, _super);
+            function Icon() {
+                return _super.call(this, 'icon') || this;
+            }
+            return Icon;
+        }(Item));
+        ui.Icon = Icon;
         var Label = (function (_super) {
             __extends(Label, _super);
-            function Label() {
-                return _super.call(this, 'label') || this;
+            function Label(text) {
+                if (text === void 0) { text = null; }
+                var _this = _super.call(this, 'item label') || this;
+                _this.reassembleNeeded = false;
+                if (text) {
+                    _this.text = text;
+                }
+                return _this;
             }
-            Label.prototype.didSet = function (e) {
-                _super.prototype.didSet.call(this, e);
-                if (e.property == 'text') {
-                    this.divText.html = this.text;
+            Label.prototype.createIconElement = function () {
+                this.setPropertyUnsafe('eIcon', Optional.of(new DivElement('icon-container')));
+                this.reassembleNeeded = true;
+            };
+            Label.prototype.createDescriptionElement = function () {
+                this.setPropertyUnsafe('eDescription', Optional.of(new DivElement('desc')));
+                this.reassembleNeeded = true;
+            };
+            Label.prototype.createTextElement = function () {
+                this.setPropertyUnsafe('eText', Optional.of(new DivElement('text')));
+                this.reassembleNeeded = true;
+            };
+            Label.prototype.createGroupElement = function () {
+                this.setPropertyUnsafe('eGroup', Optional.of(new DivElement('group')));
+                this.reassembleNeeded = true;
+            };
+            Label.prototype.deleteIconElement = function () {
+                this.eIcon.ifPresent(function (e) { return e.removeFromParent(); });
+                this.setPropertyUnsafe('eIcon', Optional.empty());
+                this.reassembleNeeded = true;
+            };
+            Label.prototype.deleteDescriptionElement = function () {
+                this.eDescription.ifPresent(function (e) { return e.removeFromParent(); });
+                this.setPropertyUnsafe('eDescription', Optional.empty());
+                this.reassembleNeeded = true;
+            };
+            Label.prototype.deleteGroupElement = function () {
+                this.eGroup.ifPresent(function (e) { return e.removeFromParent(); });
+                this.setPropertyUnsafe('eGroup', Optional.empty());
+                this.reassembleNeeded = true;
+            };
+            Label.prototype.deleteTextElement = function () {
+                this.eText.ifPresent(function (e) { return e.removeFromParent(); });
+                this.setPropertyUnsafe('eText', Optional.empty());
+                this.reassembleNeeded = true;
+            };
+            Label.prototype.reassemble = function () {
+                var _this = this;
+                this.eText.ifPresent(function (e) { return e.removeFromParent(); });
+                this.eDescription.ifPresent(function (e) { return e.removeFromParent(); });
+                this.eGroup.ifPresent(function (e) { return e.removeFromParent(); });
+                this.eIcon.ifPresent(function (e) { return e.removeFromParent(); });
+                if (this.eIcon.isPresent) {
+                    this.add(this.eIcon.orThrow());
+                }
+                this.eGroup.ifPresent(function (g) {
+                    _this.add(g);
+                    _this.eText.ifPresent(function (t) { return _this.add(t); });
+                    _this.eDescription.ifPresent(function (d) {
+                        g.add(d);
+                    });
+                }).elseDo(function () {
+                    _this.eDescription.ifPresent(function (d) {
+                        _this.eText.ifPresent(function (t) { return _this.add(t); });
+                        _this.add(d);
+                    }).elseDo(function () {
+                        _this.eText.ifPresent(function (t) {
+                        }).elseDo(function () {
+                            if (_this.text) {
+                                _this.html = _this.text;
+                            }
+                        });
+                    });
+                });
+                this.reassembleNeeded = false;
+            };
+            Label.prototype.updateLayout = function () {
+                if (this.icon.isPresent) {
+                    if (!this.eIcon.isPresent) {
+                        this.createIconElement();
+                    }
+                    this.eIcon.orThrow().add(this.icon.orThrow());
+                }
+                else {
+                    if (this.eIcon.isPresent) {
+                        this.deleteIconElement();
+                    }
+                }
+                if (this.icon.isPresent && (this.description.isPresent || this.text)) {
+                    if (!this.eGroup.isPresent) {
+                        this.createGroupElement();
+                    }
+                }
+                else {
+                    if (this.eGroup.isPresent) {
+                        this.deleteGroupElement();
+                    }
+                }
+                if (this.description.isPresent) {
+                    if (!this.eDescription.isPresent) {
+                        this.createDescriptionElement();
+                    }
+                    this.eDescription.orThrow().html = this.description.orThrow();
+                }
+                else {
+                    if (this.eDescription.isPresent) {
+                        this.deleteDescriptionElement();
+                    }
+                }
+                if (this.text)
+                    if (this.icon.isPresent || this.description.isPresent) {
+                        if (!this.eText.isPresent) {
+                            this.html = '';
+                            this.createTextElement();
+                        }
+                        this.eText.orThrow().html = this.text;
+                    }
+                    else {
+                        if (this.eGroup.isPresent) {
+                            if (!this.eText.isPresent) {
+                                this.html = '';
+                                this.createTextElement();
+                            }
+                        }
+                        else {
+                            if (this.eText.isPresent) {
+                                this.deleteTextElement();
+                            }
+                            this.html = this.text;
+                        }
+                    }
+                if (this.reassembleNeeded) {
+                    this.reassemble();
                 }
             };
+            Label.prototype.didSet = function (e) {
+                _super.prototype.didSet.call(this, e);
+                if (e.property == 'text' || e.property == 'description' || e.property == 'icon') {
+                    this.updateLayout();
+                }
+            };
+            Object.defineProperty(Label.prototype, "description", {
+                get: function () {
+                    return this.getPropertyValue('description', Optional, Optional.empty());
+                },
+                set: function (value) {
+                    this.setPropertyValue('description', value, Optional);
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(Label.prototype, "icon", {
+                get: function () {
+                    return this.getPropertyValue('icon', Optional, Optional.empty());
+                },
+                set: function (value) {
+                    this.setPropertyValue('icon', value, Optional);
+                },
+                enumerable: true,
+                configurable: true
+            });
             Object.defineProperty(Label.prototype, "text", {
                 get: function () {
                     return this.getPropertyValue('text', String, null);
@@ -460,20 +631,30 @@ define(["require", "exports", "./latte"], function (require, exports, latte_1) {
                 enumerable: true,
                 configurable: true
             });
-            Object.defineProperty(Label.prototype, "divDescription", {
+            Object.defineProperty(Label.prototype, "eDescription", {
                 get: function () {
-                    return this.getLazyProperty('divDescription', DivElement, function () {
-                        return new DivElement('description');
-                    });
+                    return this.getPropertyValue('eDescription', Optional, Optional.empty());
                 },
                 enumerable: true,
                 configurable: true
             });
-            Object.defineProperty(Label.prototype, "divText", {
+            Object.defineProperty(Label.prototype, "eGroup", {
                 get: function () {
-                    return this.getLazyProperty('divText', DivElement, function () {
-                        return new DivElement('text');
-                    });
+                    return this.getPropertyValue('eGroup', Optional, Optional.empty());
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(Label.prototype, "eIcon", {
+                get: function () {
+                    return this.getPropertyValue('eIcon', Optional, Optional.empty());
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(Label.prototype, "eText", {
+                get: function () {
+                    return this.getPropertyValue('eText', Optional, Optional.empty());
                 },
                 enumerable: true,
                 configurable: true
@@ -484,11 +665,30 @@ define(["require", "exports", "./latte"], function (require, exports, latte_1) {
         var Clickable = (function (_super) {
             __extends(Clickable, _super);
             function Clickable() {
-                return _super.call(this) || this;
+                var _this = _super.call(this) || this;
+                _this.addEventListener('click', function (e) { return _this.raise('click', e); });
+                return _this;
             }
             return Clickable;
-        }(DivElement));
+        }(Item));
         ui.Clickable = Clickable;
+        var ButtonItem = (function (_super) {
+            __extends(ButtonItem, _super);
+            function ButtonItem() {
+                return _super !== null && _super.apply(this, arguments) || this;
+            }
+            Object.defineProperty(ButtonItem.prototype, "label", {
+                get: function () {
+                    return this.getLazyProperty('label', Label, function () {
+                        return new Label();
+                    });
+                },
+                enumerable: true,
+                configurable: true
+            });
+            return ButtonItem;
+        }(Clickable));
+        ui.ButtonItem = ButtonItem;
         var Selectable = (function (_super) {
             __extends(Selectable, _super);
             function Selectable() {

@@ -9,6 +9,9 @@ import DateTime = latte.DateTime;
 import UiElement = ui.UiElement;
 import LanguageDirection = ui.LanguageDirection;
 import DivElement = ui.DivElement;
+import Label = ui.Label;
+import Optional = latte.Optional;
+import Icon = ui.Icon;
 
 
 let randomRange = (min: number, max: number) => Math.floor(Math.random() * (max - min)) + min;
@@ -77,7 +80,7 @@ describe('Element', () => {
 
     let tags = ('a,abbr,acronym,address,applet,area,article,aside,audio,base,basefont,bdo,bgsound,blink,blockquote,' +
         'body,br,button,canvas,caption,center,col, colgroup,command,comment,datalist,dd,del,details,dir,div,dl,dt,' +
-        'embed,fieldset,figure,b,big,i,small,tt,font,footer,form, frame,frameset,head,header,hgroup,h1,hr,html,' +
+        'embed,fieldset,figure,b,big,i,small,tt,font,footer,form,frame,frameset,head,header,hgroup,h1,hr,html,' +
         'isindex,iframe,ilayer,img,input,ins,keygen,keygen,label,layer,legend,li,link,map, mark,marquee,menu,meta,' +
         'meter,multicol,nav,nobr,noembed,noframes,noscript,object,ol,optgroup,option,output,p,param,cite,code,dfn,em,' +
         'kbd,samp,strong,var,plaintext,pre,progress,q,ruby,script,section,select,spacer,span,s,strike,style,sub,sup,' +
@@ -234,10 +237,7 @@ describe('Element', () => {
 
             for(let s in atts)
                 expect(b.getAtt(s)).to.be.equals(atts[s]);
-
         });
-
-
     });
 
     it('should animate', function () {
@@ -301,6 +301,37 @@ describe('DivElement', () => {
 
         expect(d.raw).to.be.equals(scratch);
 
+    });
+
+});
+
+describe('Label', () => {
+
+    it('should updateElements', function () {
+
+        let a = new Label("Something");
+
+        expect(a.text).to.be.equals("Something");
+        expect(a.eText.isPresent).to.be.false;
+        expect(a.eDescription.isPresent).to.be.false;
+        expect(a.eIcon.isPresent).to.be.false;
+        expect(a.eGroup.isPresent).to.be.false;
+
+        a.description = Optional.of("Else");
+
+        expect(a.description.orThrow()).to.be.equals("Else");
+        expect(a.eText.isPresent).to.be.true;
+        expect(a.eDescription.isPresent).to.be.true;
+        expect(a.eIcon.isPresent).to.be.false;
+        expect(a.eGroup.isPresent).to.be.false;
+
+        a.icon = Optional.of(new Icon());
+
+        expect(a.description.orThrow()).to.be.equals("Else");
+        expect(a.eText.isPresent).to.be.true;
+        expect(a.eDescription.isPresent).to.be.true;
+        expect(a.eIcon.isPresent).to.be.true;
+        expect(a.eGroup.isPresent).to.be.false;
     });
 
 });

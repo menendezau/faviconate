@@ -14,6 +14,8 @@ export namespace workspace{
     import Icon = icon.Icon;
     import InputElement = ui.InputElement;
     import ImageFit = imageutil.ImageFit;
+    import Label = ui.Label;
+    import Optional = latte.Optional;
 
     /**
      * Mouse related events
@@ -748,8 +750,12 @@ export namespace workspace{
                     this.sizeSlider,
                     this.widthSlider,
                     this.heightSlider,
-                    this.colorSlider
+                    this.colorSlider,
+                    this.testLabel
                 ]);
+
+                this.testLabel.description = Optional.of("desc");
+                // this.testLabel.icon = Optional.of(new ui.Icon());
 
                 // Update fps every half second
                 setInterval(() => this.divFps.html = `${this.canvas.fps}fps`, 500);
@@ -850,6 +856,14 @@ export namespace workspace{
             });
         }
 
+        /**
+         * Gets the test label
+         */
+        get testLabel(): Label {
+            return this.getLazyProperty('testLabel', Label, () => {
+                return new Label('Some Text');
+            });
+        }
 
         //endregion
 

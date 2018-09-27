@@ -219,6 +219,11 @@ define(["require", "exports"], function (require, exports) {
                 }
                 return true;
             };
+            PropertyTarget.prototype.deleteProperty = function (name) {
+                if (name in this.propertyValues) {
+                    delete this.propertyValues[name];
+                }
+            };
             PropertyTarget.prototype.getPropertyValue = function (name, validator, withDefault) {
                 if (!(name in this.propertyValues)) {
                     this.propertyValues[name] = withDefault;
@@ -255,6 +260,10 @@ define(["require", "exports"], function (require, exports) {
                 }
                 return value;
             };
+            PropertyTarget.prototype.setPropertyUnsafe = function (name, value) {
+                this.propertyValues[name] = value;
+                return value;
+            };
             PropertyTarget.prototype.setPropertyValues = function (values) {
                 for (var i in values) {
                     this.setPropertyValue(i, values[i], null);
@@ -277,10 +286,17 @@ define(["require", "exports"], function (require, exports) {
             Optional.of = function (value) {
                 return new Optional(value);
             };
+            Optional.prototype.elseDo = function (callback) {
+                if (!this.isPresent) {
+                    callback();
+                }
+                return this;
+            };
             Optional.prototype.ifPresent = function (callback) {
                 if (this.isPresent) {
                     callback(this.value);
                 }
+                return this;
             };
             Optional.prototype.orElse = function (value) {
                 if (this.isPresent) {
@@ -290,7 +306,7 @@ define(["require", "exports"], function (require, exports) {
                     return value;
                 }
             };
-            Optional.prototype.orElseThrow = function (ex) {
+            Optional.prototype.orThrow = function (ex) {
                 if (ex === void 0) { ex = "Value Needed"; }
                 if (!this.isPresent) {
                     throw ex;

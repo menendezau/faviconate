@@ -496,13 +496,25 @@ export namespace latte{
         //region Methods
 
         /**
+         * Executes the callback if there is no value present
+         * @param {() => void} callback
+         */
+        elseDo(callback: () => void): this{
+            if(!this.isPresent) {
+                callback();
+            }
+            return this;
+        }
+
+        /**
          * Executes the callback if a value is present
          * @param {(result: T) => void} callback
          */
-        ifPresent(callback: (result: T) => void){
+        ifPresent(callback: (result: T) => void): this{
             if(this.isPresent) {
                 callback(this.value);
             }
+            return this;
         }
 
         /**
@@ -522,7 +534,7 @@ export namespace latte{
          * Throws the specified object if no value present
          * @param ex
          */
-        orElseThrow(ex: any = "Value Needed"): T{
+        orThrow(ex: any = "Value Needed"): T{
             if(!this.isPresent) {
                 throw ex;
             }

@@ -889,7 +889,7 @@ export namespace icon{
                     let px = this.icon.getPixel(x, y);
 
                     if(px && this.projection.isPresent) {
-                        this.drawRectangle(this.projection.orElseThrow().getPixelRect(x, y), px);
+                        this.drawRectangle(this.projection.orThrow().getPixelRect(x, y), px);
                     }
 
                 }

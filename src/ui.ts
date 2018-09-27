@@ -6,6 +6,7 @@ export namespace ui{
     import PropertyTarget = latte.PropertyTarget;
     import DidSet = latte.DidSet;
     import Any = latte.Any;
+    import Optional = latte.Optional;
 
     export enum LanguageDirection{
         AUTO,
@@ -707,17 +708,211 @@ export namespace ui{
         //region Fields
         private divText: DivElement;
         private divDesc: DivElement;
+        private reassembleNeeded: boolean = false;
         //endregion
 
-        constructor(){
-            super('label');
+        constructor(text: string = null){
+            super('item label');
+
+            if(text) {
+                this.text = text;
+            }
         }
 
         //region Private Methods
 
+        private createIconElement(){
+            this.setPropertyUnsafe('eIcon', Optional.of(new DivElement('icon-container')));
+            this.reassembleNeeded = true;
+        }
+
+        private createDescriptionElement(){
+            this.setPropertyUnsafe('eDescription', Optional.of(new DivElement('desc')));
+            this.reassembleNeeded = true;
+        }
+
+        private createTextElement(){
+            this.setPropertyUnsafe('eText', Optional.of(new DivElement('text')));
+            this.reassembleNeeded = true;
+        }
+
+        private createGroupElement(){
+            this.setPropertyUnsafe('eGroup', Optional.of(new DivElement('group')));
+            this.reassembleNeeded = true;
+        }
+
+        private deleteIconElement(){
+            this.eIcon.ifPresent(e => e.removeFromParent());
+            this.setPropertyUnsafe('eIcon', Optional.empty());
+            this.reassembleNeeded = true;
+        }
+
+        private deleteDescriptionElement(){
+            this.eDescription.ifPresent(e => e.removeFromParent());
+            this.setPropertyUnsafe('eDescription', Optional.empty());
+            this.reassembleNeeded = true;
+        }
+
+        private deleteGroupElement(){
+            this.eGroup.ifPresent(e => e.removeFromParent());
+            this.setPropertyUnsafe('eGroup', Optional.empty());
+            this.reassembleNeeded = true;
+        }
+
+        private deleteTextElement(){
+            this.eText.ifPresent(e => e.removeFromParent());
+            this.setPropertyUnsafe('eText', Optional.empty());
+            this.reassembleNeeded = true;
+        }
+
+        /**
+         * Detaches and re-attaches all elements according to presence of elements
+         */
+        private reassemble(){
+
+            this.eText       .ifPresent( e => e.removeFromParent());
+            this.eDescription.ifPresent( e => e.removeFromParent());
+            this.eGroup      .ifPresent( e => e.removeFromParent());
+            this.eIcon       .ifPresent( e => e.removeFromParent());
+
+            if(this.eIcon.isPresent) {
+                this.add(this.eIcon.orThrow());
+            }
+
+            this.eGroup.ifPresent(g => {
+
+                this.add(g);
+
+                this.eText.ifPresent(t => this.add(t));
+
+                this.eDescription.ifPresent( d => {
+                    g.add(d);
+                });
+
+            }).elseDo(() => {
+
+                this.eDescription.ifPresent(d => {
+
+                    this.eText.ifPresent(t => this.add(t));
+                    this.add(d);
+
+                }).elseDo(() => {
+
+                    this.eText.ifPresent( t => {
+
+                    }).elseDo(() => {
+
+                        if(this.text) {
+                            this.html = this.text
+                        }
+
+
+                    });
+
+
+                });
+
+            });
+
+            this.reassembleNeeded = false;
+        }
+
+        /**
+         * Updates the structure of the element.
+         * Ensures that the internal structure is both optimal and updated.
+         */
         private updateLayout(){
 
-            
+            // Ensure existence of elements according to icon property
+            if(this.icon.isPresent) {
+
+                if(!this.eIcon.isPresent) {
+                    this.createIconElement();
+                }
+
+                // Assign icon
+                this.eIcon.orThrow().add(this.icon.orThrow());
+
+            }else{
+
+                if(this.eIcon.isPresent) {
+                    this.deleteIconElement();
+                }
+            }
+
+            // Group element is necessary if there is both icon and text (or desc)
+            if(this.icon.isPresent && (this.description.isPresent || this.text)) {
+
+                if(!this.eGroup.isPresent) {
+                    this.createGroupElement();
+                }
+
+            }else{
+
+                if(this.eGroup.isPresent) {
+                    this.deleteGroupElement();
+                }
+
+            }
+
+            // Ensure existence of elements according to description property
+            if(this.description.isPresent) {
+
+                if(!this.eDescription.isPresent) {
+                    this.createDescriptionElement();
+                }
+
+                // Assign description
+                this.eDescription.orThrow().html = this.description.orThrow();
+            }else{
+
+                if(this.eDescription.isPresent) {
+                    this.deleteDescriptionElement()
+                }
+            }
+
+
+            if(this.text)
+            if(this.icon.isPresent || this.description.isPresent) {
+
+                // Text element needed
+                if(!this.eText.isPresent) {
+                    this.html = ''; // Delete current text
+                    this.createTextElement();
+                }
+
+                // Assign text
+                this.eText.orThrow().html = this.text;
+
+            }else{
+
+                if(this.eGroup.isPresent) {
+
+                    if(!this.eText.isPresent) {
+                        this.html = ''; // Delete current
+                        this.createTextElement();
+
+                    }
+
+                }else{
+
+                    // Text element not needed
+                    if(this.eText.isPresent) {
+                        this.deleteTextElement()
+                    }
+
+                    // Assign text to the HTML
+                    this.html = this.text;
+
+                }
+
+
+
+            }
+
+            if(this.reassembleNeeded) {
+                this.reassemble();
+            }
 
         }
 
@@ -732,7 +927,7 @@ export namespace ui{
         didSet(e: DidSet){
             super.didSet(e);
 
-            if (e.property == 'text' || e.property == 'description'){
+            if (e.property == 'text' || e.property == 'description' || e.property == 'icon'){
                 this.updateLayout();
             }
 
@@ -741,6 +936,39 @@ export namespace ui{
         //endregion
 
         //region Properties
+
+        /**
+         * Gets or sets the description of the label
+         */
+        get description(): Optional<string> {
+            return this.getPropertyValue('description', Optional, Optional.empty());
+        }
+
+        /**
+         * Gets or sets the description of the label
+         *
+         * @param {Optional<string>} value
+         */
+        set description(value: Optional<string>) {
+            this.setPropertyValue('description', value, Optional);
+        }
+
+        /**
+         * Gets or sets the icon of the element
+         */
+        get icon(): Optional<Icon> {
+            return this.getPropertyValue('icon', Optional, Optional.empty());
+        }
+
+        /**
+         * Gets or sets the icon of the element
+         *
+         * @param {Optional<Icon>} value
+         */
+        set icon(value: Optional<Icon>) {
+            this.setPropertyValue('icon', value, Optional);
+        }
+
         /**
          * Gets or sets the text of the label
          */
@@ -756,9 +984,38 @@ export namespace ui{
         set text(value: string) {
             this.setPropertyValue('text', value, String);
         }
+
         //endregion
 
         //region Elements
+
+        /**
+         * Gets the description element
+         */
+        get eDescription(): Optional<DivElement> {
+            return this.getPropertyValue('eDescription', Optional, Optional.empty());
+        }
+
+        /**
+         * Gets the group element. Separates icon and text at some layouts
+         */
+        get eGroup(): Optional<DivElement> {
+            return this.getPropertyValue('eGroup', Optional, Optional.empty());
+        }
+
+        /**
+         * Gets the icon element
+         */
+        get eIcon(): Optional<DivElement> {
+            return this.getPropertyValue('eIcon', Optional, Optional.empty());
+        }
+
+        /**
+         * Gets the text element
+         */
+        get eText(): Optional<DivElement> {
+            return this.getPropertyValue('eText', Optional, Optional.empty());
+        }
 
         //endregion
 
@@ -774,6 +1031,22 @@ export namespace ui{
 
             this.addEventListener('click', e => this.raise('click', e));
         }
+
+    }
+
+    export class ButtonItem extends Clickable{
+
+        //region Elements
+        /**
+         * Gets the label of the item
+         */
+        get label(): Label {
+            return this.getLazyProperty('label', Label, () => {
+                return new Label();
+            });
+        }
+
+        //endregion
 
     }
 

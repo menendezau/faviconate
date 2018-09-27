@@ -346,6 +346,25 @@ describe('Optional', () => {
 
     });
 
+    it('should work elseDo', function () {
+
+        let o1: Optional<number> = Optional.empty();
+        let o2: Optional<number> = Optional.of(10);
+        let f1: boolean = false;
+        let f2: boolean = false;
+        let f3: boolean = false;
+        let f4: boolean = false;
+
+        o1.ifPresent(_ => f1 = true).elseDo(() => f3 = true);
+        o2.ifPresent(_ => f2 = true).elseDo(() => f4 = true);
+
+        expect(f1).to.be.false;
+        expect(f2).to.be.true;
+        expect(f3).to.be.true;
+        expect(f4).to.be.false;
+
+    });
+
     it('should work orElse()', function () {
 
         let o1: Optional<number> = Optional.empty();
@@ -356,13 +375,13 @@ describe('Optional', () => {
 
     });
 
-    it('should work orElseThrow()', function () {
+    it('should work orThrow()', function () {
 
         let o1: Optional<number> = Optional.empty();
         let o2: Optional<number> = Optional.of(10);
 
-        expect(() => o1.orElseThrow("Check")).to.throw("Check");
-        expect(() => o2.orElseThrow("Check")).to.not.throw("Check");
+        expect(() => o1.orThrow("Check")).to.throw("Check");
+        expect(() => o2.orThrow("Check")).to.not.throw("Check");
 
     });
 

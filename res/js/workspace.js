@@ -17,6 +17,8 @@ define(["require", "exports", "./ui", "./viewport", "./latte"], function (requir
         var PropertyTarget = latte_1.latte.PropertyTarget;
         var DivElement = ui_1.ui.DivElement;
         var InputElement = ui_1.ui.InputElement;
+        var Label = ui_1.ui.Label;
+        var Optional = latte_1.latte.Optional;
         var Mouse;
         (function (Mouse) {
             Mouse[Mouse["UP"] = 0] = "UP";
@@ -473,7 +475,9 @@ define(["require", "exports", "./ui", "./viewport", "./latte"], function (requir
                         this.widthSlider,
                         this.heightSlider,
                         this.colorSlider,
+                        this.testLabel
                     ]);
+                    this.testLabel.description = Optional.of("desc");
                     setInterval(function () { return _this.divFps.html = _this.canvas.fps + "fps"; }, 500);
                 }
             };
@@ -565,6 +569,15 @@ define(["require", "exports", "./ui", "./viewport", "./latte"], function (requir
                 get: function () {
                     return this.getLazyProperty('colorSlider', Slider, function () {
                         return new Slider("Palette");
+                    });
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(Workspace.prototype, "testLabel", {
+                get: function () {
+                    return this.getLazyProperty('testLabel', Label, function () {
+                        return new Label('Some Text');
                     });
                 },
                 enumerable: true,

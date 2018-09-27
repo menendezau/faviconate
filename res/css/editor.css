@@ -62,3 +62,7 @@ div.slider .value{
     background: deepskyblue;
     color: white;
 }
+
+.item.label, .item.label * {
+    border: solid 1px red;
+}
