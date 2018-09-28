@@ -688,6 +688,8 @@ export namespace ui{
             super(e);
 
             this.addClass('item');
+
+            this.setAtt('tabIndex', '0');
         }
     }
 
@@ -697,13 +699,13 @@ export namespace ui{
         }
     }
 
-    export class Icon extends Item{
+    export class IconItem extends Item{
         constructor(){
             super('icon');
         }
     }
 
-    export class Label extends DivElement{
+    export class LabelItem extends Item{
 
         //region Fields
         private divText: DivElement;
@@ -712,7 +714,7 @@ export namespace ui{
         //endregion
 
         constructor(text: string = null){
-            super('item label');
+            super('label');
 
             if(text) {
                 this.text = text;
@@ -782,9 +784,7 @@ export namespace ui{
             this.eGroup.ifPresent(g => {
 
                 this.add(g);
-
-                this.eText.ifPresent(t => this.add(t));
-
+                this.eText.ifPresent(t => g.add(t));
                 this.eDescription.ifPresent( d => {
                     g.add(d);
                 });
@@ -805,8 +805,6 @@ export namespace ui{
                         if(this.text) {
                             this.html = this.text
                         }
-
-
                     });
 
 
@@ -834,7 +832,6 @@ export namespace ui{
                 this.eIcon.orThrow().add(this.icon.orThrow());
 
             }else{
-
                 if(this.eIcon.isPresent) {
                     this.deleteIconElement();
                 }
@@ -846,7 +843,6 @@ export namespace ui{
                 if(!this.eGroup.isPresent) {
                     this.createGroupElement();
                 }
-
             }else{
 
                 if(this.eGroup.isPresent) {
@@ -891,9 +887,7 @@ export namespace ui{
                     if(!this.eText.isPresent) {
                         this.html = ''; // Delete current
                         this.createTextElement();
-
                     }
-
                 }else{
 
                     // Text element not needed
@@ -905,9 +899,6 @@ export namespace ui{
                     this.html = this.text;
 
                 }
-
-
-
             }
 
             if(this.reassembleNeeded) {
@@ -929,6 +920,9 @@ export namespace ui{
 
             if (e.property == 'text' || e.property == 'description' || e.property == 'icon'){
                 this.updateLayout();
+                this.ensureClass('with-icon', this.eIcon.isPresent);
+                this.ensureClass('with-desc', this.eDescription.isPresent);
+                this.ensureClass('with-text', !!this.text);
             }
 
         }
@@ -956,7 +950,7 @@ export namespace ui{
         /**
          * Gets or sets the icon of the element
          */
-        get icon(): Optional<Icon> {
+        get icon(): Optional<IconItem> {
             return this.getPropertyValue('icon', Optional, Optional.empty());
         }
 
@@ -965,7 +959,7 @@ export namespace ui{
          *
          * @param {Optional<Icon>} value
          */
-        set icon(value: Optional<Icon>) {
+        set icon(value: Optional<IconItem>) {
             this.setPropertyValue('icon', value, Optional);
         }
 
@@ -1040,9 +1034,9 @@ export namespace ui{
         /**
          * Gets the label of the item
          */
-        get label(): Label {
-            return this.getLazyProperty('label', Label, () => {
-                return new Label();
+        get label(): LabelItem {
+            return this.getLazyProperty('label', LabelItem, () => {
+                return new LabelItem();
             });
         }
 
@@ -1096,9 +1090,9 @@ export namespace ui{
         /**
          * Gets the label
          */
-        get divLabel(): Label {
-            return this.getLazyProperty('divLabel', Label, () => {
-                return new Label();
+        get divLabel(): LabelItem {
+            return this.getLazyProperty('divLabel', LabelItem, () => {
+                return new LabelItem();
             });
         }
 

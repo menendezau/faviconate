@@ -17,8 +17,9 @@ define(["require", "exports", "./ui", "./viewport", "./latte"], function (requir
         var PropertyTarget = latte_1.latte.PropertyTarget;
         var DivElement = ui_1.ui.DivElement;
         var InputElement = ui_1.ui.InputElement;
-        var Label = ui_1.ui.Label;
+        var Label = ui_1.ui.LabelItem;
         var Optional = latte_1.latte.Optional;
+        var IconItem = ui_1.ui.IconItem;
         var Mouse;
         (function (Mouse) {
             Mouse[Mouse["UP"] = 0] = "UP";
@@ -478,6 +479,7 @@ define(["require", "exports", "./ui", "./viewport", "./latte"], function (requir
                         this.testLabel
                     ]);
                     this.testLabel.description = Optional.of("desc");
+                    this.testLabel.icon = Optional.of(new IconItem());
                     setInterval(function () { return _this.divFps.html = _this.canvas.fps + "fps"; }, 500);
                 }
             };

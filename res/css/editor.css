@@ -66,3 +66,16 @@ div.slider .value{
 .item.label, .item.label * {
     border: solid 1px red;
 }
+
+.item.label.with-icon{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+}
+
+.item.label.with-icon > .icon-container{
+    min-width: 10px;
+    background: #ff0;
+}
+
+

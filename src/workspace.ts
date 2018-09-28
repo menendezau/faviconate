@@ -14,8 +14,9 @@ export namespace workspace{
     import Icon = icon.Icon;
     import InputElement = ui.InputElement;
     import ImageFit = imageutil.ImageFit;
-    import Label = ui.Label;
+    import Label = ui.LabelItem;
     import Optional = latte.Optional;
+    import IconItem = ui.IconItem;
 
     /**
      * Mouse related events
@@ -755,7 +756,7 @@ export namespace workspace{
                 ]);
 
                 this.testLabel.description = Optional.of("desc");
-                // this.testLabel.icon = Optional.of(new ui.Icon());
+                this.testLabel.icon = Optional.of(new IconItem());
 
                 // Update fps every half second
                 setInterval(() => this.divFps.html = `${this.canvas.fps}fps`, 500);

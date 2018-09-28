@@ -437,6 +437,7 @@ define(["require", "exports", "./latte"], function (require, exports, latte_1) {
                 if (e === void 0) { e = null; }
                 var _this = _super.call(this, e) || this;
                 _this.addClass('item');
+                _this.setAtt('tabIndex', '0');
                 return _this;
             }
             return Item;
@@ -451,62 +452,62 @@ define(["require", "exports", "./latte"], function (require, exports, latte_1) {
             return InputElement;
         }(UiElement));
         ui.InputElement = InputElement;
-        var Icon = (function (_super) {
-            __extends(Icon, _super);
-            function Icon() {
+        var IconItem = (function (_super) {
+            __extends(IconItem, _super);
+            function IconItem() {
                 return _super.call(this, 'icon') || this;
             }
-            return Icon;
+            return IconItem;
         }(Item));
-        ui.Icon = Icon;
-        var Label = (function (_super) {
-            __extends(Label, _super);
-            function Label(text) {
+        ui.IconItem = IconItem;
+        var LabelItem = (function (_super) {
+            __extends(LabelItem, _super);
+            function LabelItem(text) {
                 if (text === void 0) { text = null; }
-                var _this = _super.call(this, 'item label') || this;
+                var _this = _super.call(this, 'label') || this;
                 _this.reassembleNeeded = false;
                 if (text) {
                     _this.text = text;
                 }
                 return _this;
             }
-            Label.prototype.createIconElement = function () {
+            LabelItem.prototype.createIconElement = function () {
                 this.setPropertyUnsafe('eIcon', Optional.of(new DivElement('icon-container')));
                 this.reassembleNeeded = true;
             };
-            Label.prototype.createDescriptionElement = function () {
+            LabelItem.prototype.createDescriptionElement = function () {
                 this.setPropertyUnsafe('eDescription', Optional.of(new DivElement('desc')));
                 this.reassembleNeeded = true;
             };
-            Label.prototype.createTextElement = function () {
+            LabelItem.prototype.createTextElement = function () {
                 this.setPropertyUnsafe('eText', Optional.of(new DivElement('text')));
                 this.reassembleNeeded = true;
             };
-            Label.prototype.createGroupElement = function () {
+            LabelItem.prototype.createGroupElement = function () {
                 this.setPropertyUnsafe('eGroup', Optional.of(new DivElement('group')));
                 this.reassembleNeeded = true;
             };
-            Label.prototype.deleteIconElement = function () {
+            LabelItem.prototype.deleteIconElement = function () {
                 this.eIcon.ifPresent(function (e) { return e.removeFromParent(); });
                 this.setPropertyUnsafe('eIcon', Optional.empty());
                 this.reassembleNeeded = true;
             };
-            Label.prototype.deleteDescriptionElement = function () {
+            LabelItem.prototype.deleteDescriptionElement = function () {
                 this.eDescription.ifPresent(function (e) { return e.removeFromParent(); });
                 this.setPropertyUnsafe('eDescription', Optional.empty());
                 this.reassembleNeeded = true;
             };
-            Label.prototype.deleteGroupElement = function () {
+            LabelItem.prototype.deleteGroupElement = function () {
                 this.eGroup.ifPresent(function (e) { return e.removeFromParent(); });
                 this.setPropertyUnsafe('eGroup', Optional.empty());
                 this.reassembleNeeded = true;
             };
-            Label.prototype.deleteTextElement = function () {
+            LabelItem.prototype.deleteTextElement = function () {
                 this.eText.ifPresent(function (e) { return e.removeFromParent(); });
                 this.setPropertyUnsafe('eText', Optional.empty());
                 this.reassembleNeeded = true;
             };
-            Label.prototype.reassemble = function () {
+            LabelItem.prototype.reassemble = function () {
                 var _this = this;
                 this.eText.ifPresent(function (e) { return e.removeFromParent(); });
                 this.eDescription.ifPresent(function (e) { return e.removeFromParent(); });
@@ -517,7 +518,7 @@ define(["require", "exports", "./latte"], function (require, exports, latte_1) {
                 }
                 this.eGroup.ifPresent(function (g) {
                     _this.add(g);
-                    _this.eText.ifPresent(function (t) { return _this.add(t); });
+                    _this.eText.ifPresent(function (t) { return g.add(t); });
                     _this.eDescription.ifPresent(function (d) {
                         g.add(d);
                     });
@@ -536,7 +537,7 @@ define(["require", "exports", "./latte"], function (require, exports, latte_1) {
                 });
                 this.reassembleNeeded = false;
             };
-            Label.prototype.updateLayout = function () {
+            LabelItem.prototype.updateLayout = function () {
                 if (this.icon.isPresent) {
                     if (!this.eIcon.isPresent) {
                         this.createIconElement();
@@ -595,13 +596,16 @@ define(["require", "exports", "./latte"], function (require, exports, latte_1) {
                     this.reassemble();
                 }
             };
-            Label.prototype.didSet = function (e) {
+            LabelItem.prototype.didSet = function (e) {
                 _super.prototype.didSet.call(this, e);
                 if (e.property == 'text' || e.property == 'description' || e.property == 'icon') {
                     this.updateLayout();
+                    this.ensureClass('with-icon', this.eIcon.isPresent);
+                    this.ensureClass('with-desc', this.eDescription.isPresent);
+                    this.ensureClass('with-text', !!this.text);
                 }
             };
-            Object.defineProperty(Label.prototype, "description", {
+            Object.defineProperty(LabelItem.prototype, "description", {
                 get: function () {
                     return this.getPropertyValue('description', Optional, Optional.empty());
                 },
@@ -611,7 +615,7 @@ define(["require", "exports", "./latte"], function (require, exports, latte_1) {
                 enumerable: true,
                 configurable: true
             });
-            Object.defineProperty(Label.prototype, "icon", {
+            Object.defineProperty(LabelItem.prototype, "icon", {
                 get: function () {
                     return this.getPropertyValue('icon', Optional, Optional.empty());
                 },
@@ -621,7 +625,7 @@ define(["require", "exports", "./latte"], function (require, exports, latte_1) {
                 enumerable: true,
                 configurable: true
             });
-            Object.defineProperty(Label.prototype, "text", {
+            Object.defineProperty(LabelItem.prototype, "text", {
                 get: function () {
                     return this.getPropertyValue('text', String, null);
                 },
@@ -631,37 +635,37 @@ define(["require", "exports", "./latte"], function (require, exports, latte_1) {
                 enumerable: true,
                 configurable: true
             });
-            Object.defineProperty(Label.prototype, "eDescription", {
+            Object.defineProperty(LabelItem.prototype, "eDescription", {
                 get: function () {
                     return this.getPropertyValue('eDescription', Optional, Optional.empty());
                 },
                 enumerable: true,
                 configurable: true
             });
-            Object.defineProperty(Label.prototype, "eGroup", {
+            Object.defineProperty(LabelItem.prototype, "eGroup", {
                 get: function () {
                     return this.getPropertyValue('eGroup', Optional, Optional.empty());
                 },
                 enumerable: true,
                 configurable: true
             });
-            Object.defineProperty(Label.prototype, "eIcon", {
+            Object.defineProperty(LabelItem.prototype, "eIcon", {
                 get: function () {
                     return this.getPropertyValue('eIcon', Optional, Optional.empty());
                 },
                 enumerable: true,
                 configurable: true
             });
-            Object.defineProperty(Label.prototype, "eText", {
+            Object.defineProperty(LabelItem.prototype, "eText", {
                 get: function () {
                     return this.getPropertyValue('eText', Optional, Optional.empty());
                 },
                 enumerable: true,
                 configurable: true
             });
-            return Label;
-        }(DivElement));
-        ui.Label = Label;
+            return LabelItem;
+        }(Item));
+        ui.LabelItem = LabelItem;
         var Clickable = (function (_super) {
             __extends(Clickable, _super);
             function Clickable() {
@@ -679,8 +683,8 @@ define(["require", "exports", "./latte"], function (require, exports, latte_1) {
             }
             Object.defineProperty(ButtonItem.prototype, "label", {
                 get: function () {
-                    return this.getLazyProperty('label', Label, function () {
-                        return new Label();
+                    return this.getLazyProperty('label', LabelItem, function () {
+                        return new LabelItem();
                     });
                 },
                 enumerable: true,
@@ -712,8 +716,8 @@ define(["require", "exports", "./latte"], function (require, exports, latte_1) {
             });
             Object.defineProperty(Selectable.prototype, "divLabel", {
                 get: function () {
-                    return this.getLazyProperty('divLabel', Label, function () {
-                        return new Label();
+                    return this.getLazyProperty('divLabel', LabelItem, function () {
+                        return new LabelItem();
                     });
                 },
                 enumerable: true,
