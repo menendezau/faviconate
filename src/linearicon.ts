@@ -7,10 +7,15 @@ export namespace linearicon{
 
     export class LinearIcon extends IconItem{
 
+        //region Static
 
+
+        /**
+         * Creates the icon of the specified class name
+         * @param className
+         */
         private static makeFrom(className: string): LinearIcon{
-
-
+            return new LinearIcon(className);
 
         }
 
@@ -185,8 +190,17 @@ export namespace linearicon{
         static get pointerDown         (): LinearIcon{ return this.makeFrom("pointer-down");             }
         static get pointerLeft         (): LinearIcon{ return this.makeFrom("pointer-left");             }
 
-        constructor(){
+        //endregion
+
+        /**
+         * Creates the item
+         * @param className
+         */
+        constructor(className: string){
             super();
+
+            this.addClass("lnr");
+            this.addClass("lnr-" + className);
         }
 
     }

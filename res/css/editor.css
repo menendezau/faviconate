@@ -83,4 +83,7 @@ div.slider .value{
     opacity: 0.5;
 }
 
-
+.item.icon{
+    width: 16px;
+    height: 16px;
+}

@@ -700,9 +700,25 @@ export namespace ui{
     }
 
     export class IconItem extends Item{
+
         constructor(){
             super('icon');
+
+
         }
+
+        //region Properties
+
+        /**
+         * Gets or sets the size of the icon
+         *
+         * @param {number} value
+         */
+        set size(value: number) {
+            this.setPropertyValue('size', value, Number);
+        }
+
+        //endregion
     }
 
     export class LabelItem extends Item{

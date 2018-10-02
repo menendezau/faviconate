@@ -3,6 +3,7 @@ import {viewport} from "./viewport";
 import {latte} from "./latte";
 import {icon} from "./icon";
 import {imageutil} from "./imageutil";
+import {linearicon} from "./linearicon";
 
 export namespace workspace{
 
@@ -17,6 +18,7 @@ export namespace workspace{
     import Label = ui.LabelItem;
     import Optional = latte.Optional;
     import IconItem = ui.IconItem;
+    import LinearIcon = linearicon.LinearIcon;
 
     /**
      * Mouse related events
@@ -756,7 +758,7 @@ export namespace workspace{
                 ]);
 
                 this.testLabel.description = Optional.of("desc");
-                this.testLabel.icon = Optional.of(new IconItem());
+                this.testLabel.icon = Optional.of(LinearIcon.cross);
 
                 // Update fps every half second
                 setInterval(() => this.divFps.html = `${this.canvas.fps}fps`, 500);

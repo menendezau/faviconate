@@ -457,6 +457,13 @@ define(["require", "exports", "./latte"], function (require, exports, latte_1) {
             function IconItem() {
                 return _super.call(this, 'icon') || this;
             }
+            Object.defineProperty(IconItem.prototype, "size", {
+                set: function (value) {
+                    this.setPropertyValue('size', value, Number);
+                },
+                enumerable: true,
+                configurable: true
+            });
             return IconItem;
         }(Item));
         ui.IconItem = IconItem;
