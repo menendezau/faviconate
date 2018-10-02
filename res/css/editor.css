@@ -78,4 +78,9 @@ div.slider .value{
     background: #ff0;
 }
 
+.item.label > .desc,
+.item.label > .group > .desc{
+    opacity: 0.5;
+}
+
 
