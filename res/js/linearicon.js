@@ -16,14 +16,18 @@ define(["require", "exports", "./ui"], function (require, exports, ui_1) {
         var IconItem = ui_1.ui.IconItem;
         var LinearIcon = (function (_super) {
             __extends(LinearIcon, _super);
-            function LinearIcon(className) {
-                var _this = _super.call(this) || this;
+            function LinearIcon(className, size) {
+                if (size === void 0) { size = 16; }
+                var _this = _super.call(this, size) || this;
                 _this.addClass("lnr");
                 _this.addClass("lnr-" + className);
                 return _this;
             }
             LinearIcon.makeFrom = function (className) {
                 return new LinearIcon(className);
+            };
+            LinearIcon.makeFrom32 = function (className) {
+                return new LinearIcon(className, 32);
             };
             Object.defineProperty(LinearIcon, "home", {
                 get: function () { return this.makeFrom("home"); },
@@ -872,6 +876,872 @@ define(["require", "exports", "./ui"], function (require, exports, ui_1) {
             });
             Object.defineProperty(LinearIcon, "pointerLeft", {
                 get: function () { return this.makeFrom("pointer-left"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "home32", {
+                get: function () { return this.makeFrom32("home"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "apartment32", {
+                get: function () { return this.makeFrom32("apartment"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "pencil32", {
+                get: function () { return this.makeFrom32("pencil"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "magicWand32", {
+                get: function () { return this.makeFrom32("magic-wand"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "drop32", {
+                get: function () { return this.makeFrom32("drop"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "lighter32", {
+                get: function () { return this.makeFrom32("lighter"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "poop32", {
+                get: function () { return this.makeFrom32("poop"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "sun32", {
+                get: function () { return this.makeFrom32("sun"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "moon32", {
+                get: function () { return this.makeFrom32("moon"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "cloud32", {
+                get: function () { return this.makeFrom32("cloud"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "cloudUpload32", {
+                get: function () { return this.makeFrom32("cloud-upload"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "cloudDownload32", {
+                get: function () { return this.makeFrom32("cloud-download"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "cloudSync32", {
+                get: function () { return this.makeFrom32("cloud-sync"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "cloudCheck32", {
+                get: function () { return this.makeFrom32("cloud-check"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "database32", {
+                get: function () { return this.makeFrom32("database"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "lock32", {
+                get: function () { return this.makeFrom32("lock"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "cog32", {
+                get: function () { return this.makeFrom32("cog"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "trash32", {
+                get: function () { return this.makeFrom32("trash"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "dice32", {
+                get: function () { return this.makeFrom32("dice"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "heart32", {
+                get: function () { return this.makeFrom32("heart"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "star32", {
+                get: function () { return this.makeFrom32("star"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "starHalf32", {
+                get: function () { return this.makeFrom32("star-half"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "starEmpty32", {
+                get: function () { return this.makeFrom32("star-empty"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "flag32", {
+                get: function () { return this.makeFrom32("flag"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "envelope32", {
+                get: function () { return this.makeFrom32("envelope"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "paperclip32", {
+                get: function () { return this.makeFrom32("paperclip"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "inbox32", {
+                get: function () { return this.makeFrom32("inbox"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "eye32", {
+                get: function () { return this.makeFrom32("eye"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "printer32", {
+                get: function () { return this.makeFrom32("printer"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "fileEmpty32", {
+                get: function () { return this.makeFrom32("file-empty"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "fileAdd32", {
+                get: function () { return this.makeFrom32("file-add"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "enter32", {
+                get: function () { return this.makeFrom32("enter"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "exit32", {
+                get: function () { return this.makeFrom32("exit"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "graduationHat32", {
+                get: function () { return this.makeFrom32("graduation-hat"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "license32", {
+                get: function () { return this.makeFrom32("license"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "musicNote32", {
+                get: function () { return this.makeFrom32("music-note"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "filmPlay32", {
+                get: function () { return this.makeFrom32("film-play"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "cameraVideo32", {
+                get: function () { return this.makeFrom32("camera-video"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "camera32", {
+                get: function () { return this.makeFrom32("camera"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "picture32", {
+                get: function () { return this.makeFrom32("picture"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "book32", {
+                get: function () { return this.makeFrom32("book"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "bookmark32", {
+                get: function () { return this.makeFrom32("bookmark"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "user32", {
+                get: function () { return this.makeFrom32("user"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "users32", {
+                get: function () { return this.makeFrom32("users"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "shirt32", {
+                get: function () { return this.makeFrom32("shirt"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "store32", {
+                get: function () { return this.makeFrom32("store"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "cart32", {
+                get: function () { return this.makeFrom32("cart"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "tag32", {
+                get: function () { return this.makeFrom32("tag"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "phoneHandset32", {
+                get: function () { return this.makeFrom32("phone-handset"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "phone32", {
+                get: function () { return this.makeFrom32("phone"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "pushpin32", {
+                get: function () { return this.makeFrom32("pushpin"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "mapMarker32", {
+                get: function () { return this.makeFrom32("map-marker"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "map32", {
+                get: function () { return this.makeFrom32("map"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "location32", {
+                get: function () { return this.makeFrom32("location"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "calendarFull32", {
+                get: function () { return this.makeFrom32("calendar-full"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "keyboard32", {
+                get: function () { return this.makeFrom32("keyboard"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "spellCheck32", {
+                get: function () { return this.makeFrom32("spell-check"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "screen32", {
+                get: function () { return this.makeFrom32("screen"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "smartphone32", {
+                get: function () { return this.makeFrom32("smartphone"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "tablet32", {
+                get: function () { return this.makeFrom32("tablet"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "laptop32", {
+                get: function () { return this.makeFrom32("laptop"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "laptopPhone32", {
+                get: function () { return this.makeFrom32("laptop-phone"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "powerSwitch32", {
+                get: function () { return this.makeFrom32("power-switch"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "bubble32", {
+                get: function () { return this.makeFrom32("bubble"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "heartPulse32", {
+                get: function () { return this.makeFrom32("heart-pulse"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "construction32", {
+                get: function () { return this.makeFrom32("construction"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "pieChart32", {
+                get: function () { return this.makeFrom32("pie-chart"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "chartBars32", {
+                get: function () { return this.makeFrom32("chart-bars"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "gift32", {
+                get: function () { return this.makeFrom32("gift"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "diamond32", {
+                get: function () { return this.makeFrom32("diamond"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "linearicons32", {
+                get: function () { return this.makeFrom32("linearicons"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "dinner32", {
+                get: function () { return this.makeFrom32("dinner"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "coffeeCup32", {
+                get: function () { return this.makeFrom32("coffee-cup"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "leaf32", {
+                get: function () { return this.makeFrom32("leaf"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "paw32", {
+                get: function () { return this.makeFrom32("paw"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "rocket32", {
+                get: function () { return this.makeFrom32("rocket"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "briefcase32", {
+                get: function () { return this.makeFrom32("briefcase"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "bus32", {
+                get: function () { return this.makeFrom32("bus"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "car32", {
+                get: function () { return this.makeFrom32("car"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "train32", {
+                get: function () { return this.makeFrom32("train"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "bicycle32", {
+                get: function () { return this.makeFrom32("bicycle"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "wheelchair32", {
+                get: function () { return this.makeFrom32("wheelchair"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "select32", {
+                get: function () { return this.makeFrom32("select"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "earth32", {
+                get: function () { return this.makeFrom32("earth"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "smile32", {
+                get: function () { return this.makeFrom32("smile"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "sad32", {
+                get: function () { return this.makeFrom32("sad"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "neutral32", {
+                get: function () { return this.makeFrom32("neutral"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "mustache32", {
+                get: function () { return this.makeFrom32("mustache"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "alarm32", {
+                get: function () { return this.makeFrom32("alarm"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "bullhorn32", {
+                get: function () { return this.makeFrom32("bullhorn"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "volumeHigh32", {
+                get: function () { return this.makeFrom32("volume-high"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "volumeMedium32", {
+                get: function () { return this.makeFrom32("volume-medium"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "volumeLow32", {
+                get: function () { return this.makeFrom32("volume-low"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "volume32", {
+                get: function () { return this.makeFrom32("volume"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "mic32", {
+                get: function () { return this.makeFrom32("mic"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "hourglass32", {
+                get: function () { return this.makeFrom32("hourglass"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "undo32", {
+                get: function () { return this.makeFrom32("undo"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "redo32", {
+                get: function () { return this.makeFrom32("redo"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "sync32", {
+                get: function () { return this.makeFrom32("sync"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "history32", {
+                get: function () { return this.makeFrom32("history"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "clock32", {
+                get: function () { return this.makeFrom32("clock"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "download32", {
+                get: function () { return this.makeFrom32("download"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "upload32", {
+                get: function () { return this.makeFrom32("upload"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "enterDown32", {
+                get: function () { return this.makeFrom32("enter-down"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "exitUp32", {
+                get: function () { return this.makeFrom32("exit-up"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "bug32", {
+                get: function () { return this.makeFrom32("bug"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "code32", {
+                get: function () { return this.makeFrom32("code"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "link32", {
+                get: function () { return this.makeFrom32("link"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "unlink32", {
+                get: function () { return this.makeFrom32("unlink"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "thumbsUp32", {
+                get: function () { return this.makeFrom32("thumbs-up"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "thumbsDown32", {
+                get: function () { return this.makeFrom32("thumbs-down"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "magnifier32", {
+                get: function () { return this.makeFrom32("magnifier"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "cross32", {
+                get: function () { return this.makeFrom32("cross"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "menu32", {
+                get: function () { return this.makeFrom32("menu"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "list32", {
+                get: function () { return this.makeFrom32("list"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "chevronUp32", {
+                get: function () { return this.makeFrom32("chevron-up"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "chevronDown32", {
+                get: function () { return this.makeFrom32("chevron-down"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "chevronLeft32", {
+                get: function () { return this.makeFrom32("chevron-left"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "chevronRight32", {
+                get: function () { return this.makeFrom32("chevron-right"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "arrowUp32", {
+                get: function () { return this.makeFrom32("arrow-up"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "arrowDown32", {
+                get: function () { return this.makeFrom32("arrow-down"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "arrowLeft32", {
+                get: function () { return this.makeFrom32("arrow-left"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "arrowRight32", {
+                get: function () { return this.makeFrom32("arrow-right"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "move32", {
+                get: function () { return this.makeFrom32("move"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "warning32", {
+                get: function () { return this.makeFrom32("warning"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "questionCircle32", {
+                get: function () { return this.makeFrom32("question-circle"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "menuCircle32", {
+                get: function () { return this.makeFrom32("menu-circle"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "checkmarkCircle32", {
+                get: function () { return this.makeFrom32("checkmark-circle"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "crossCircle32", {
+                get: function () { return this.makeFrom32("cross-circle"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "plusCircle32", {
+                get: function () { return this.makeFrom32("plus-circle"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "arrowUpCircle32", {
+                get: function () { return this.makeFrom32("arrow-up-circle"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "circleMinus32", {
+                get: function () { return this.makeFrom32("circle-minus"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "arrowDownCircle32", {
+                get: function () { return this.makeFrom32("arrow-down-circle"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "arrowLeftCircle32", {
+                get: function () { return this.makeFrom32("arrow-left-circle"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "arrowRightCircle32", {
+                get: function () { return this.makeFrom32("arrow-right-circle"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "chevronUpCircle32", {
+                get: function () { return this.makeFrom32("chevron-up-circle"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "chevronDownCircle32", {
+                get: function () { return this.makeFrom32("chevron-down-circle"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "chevronLeftCircle32", {
+                get: function () { return this.makeFrom32("chevron-left-circle"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "chevronRightCircle32", {
+                get: function () { return this.makeFrom32("chevron-right-circle"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "crop32", {
+                get: function () { return this.makeFrom32("crop"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "frameExpand32", {
+                get: function () { return this.makeFrom32("frame-expand"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "frameContract32", {
+                get: function () { return this.makeFrom32("frame-contract"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "layers32", {
+                get: function () { return this.makeFrom32("layers"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "funnel32", {
+                get: function () { return this.makeFrom32("funnel"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "textFormat32", {
+                get: function () { return this.makeFrom32("text-format"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "textFormatRemove32", {
+                get: function () { return this.makeFrom32("text-format-remove"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "textSize32", {
+                get: function () { return this.makeFrom32("text-size"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "bold32", {
+                get: function () { return this.makeFrom32("bold"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "italic32", {
+                get: function () { return this.makeFrom32("italic"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "underline32", {
+                get: function () { return this.makeFrom32("underline"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "strikethrough32", {
+                get: function () { return this.makeFrom32("strikethrough"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "highlight32", {
+                get: function () { return this.makeFrom32("highlight"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "textAlignLeft32", {
+                get: function () { return this.makeFrom32("text-align-left"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "textAlignCenter32", {
+                get: function () { return this.makeFrom32("text-align-center"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "textAlignRight32", {
+                get: function () { return this.makeFrom32("text-align-right"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "textAlignJustify32", {
+                get: function () { return this.makeFrom32("text-align-justify"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "lineSpacing32", {
+                get: function () { return this.makeFrom32("line-spacing"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "indentIncrease32", {
+                get: function () { return this.makeFrom32("indent-increase"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "indentDecrease32", {
+                get: function () { return this.makeFrom32("indent-decrease"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "pilcrow32", {
+                get: function () { return this.makeFrom32("pilcrow"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "directionLtr32", {
+                get: function () { return this.makeFrom32("direction-ltr"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "directionRtl32", {
+                get: function () { return this.makeFrom32("direction-rtl"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "pageBreak32", {
+                get: function () { return this.makeFrom32("page-break"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "sortAlphaAsc32", {
+                get: function () { return this.makeFrom32("sort-alpha-asc"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "sortAmountAsc32", {
+                get: function () { return this.makeFrom32("sort-amount-asc"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "hand32", {
+                get: function () { return this.makeFrom32("hand"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "pointerUp32", {
+                get: function () { return this.makeFrom32("pointer-up"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "pointerRight32", {
+                get: function () { return this.makeFrom32("pointer-right"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "pointerDown32", {
+                get: function () { return this.makeFrom32("pointer-down"); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(LinearIcon, "pointerLeft32", {
+                get: function () { return this.makeFrom32("pointer-left"); },
+                enumerable: true,
+                configurable: true
+            });
+            LinearIcon.prototype.didSet = function (e) {
+                _super.prototype.didSet.call(this, e);
+                if (e.property == 'size') {
+                    this.raw.style.fontSize = this.size.px;
+                }
+            };
+            Object.defineProperty(LinearIcon.prototype, "className", {
+                get: function () {
+                    return this.getPropertyValue('className', String, '');
+                },
+                set: function (value) {
+                    this.setPropertyValue('className', value, String);
+                },
                 enumerable: true,
                 configurable: true
             });

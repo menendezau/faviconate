@@ -256,6 +256,9 @@ describe('PropertyTarget', function(){
 
     it('should trigger willSet & didSet', function () {
 
+        let didSetCalls = 0;
+        let didSetTimeName = null;
+
         class A extends PropertyTarget{
 
             public willSetCall: DateTime = null;
@@ -266,6 +269,8 @@ describe('PropertyTarget', function(){
 
                 if (e.property == 'name'){
                     this.didSetCall = DateTime.now;
+                    didSetCalls++;
+                    didSetTimeName = this.name;
                 }
 
             }
@@ -314,6 +319,8 @@ describe('PropertyTarget', function(){
         expect(didFlag).to.be.true;
         expect(willValue).to.be.equals('john');
         expect(didValue).to.be.equals('fixed');
+        expect(didSetCalls).to.be.equals(1);
+        expect(didSetTimeName).to.be.equals('fixed');
 
     });
 

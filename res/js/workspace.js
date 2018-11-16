@@ -20,6 +20,10 @@ define(["require", "exports", "./ui", "./viewport", "./latte", "./linearicon"], 
         var Label = ui_1.ui.LabelItem;
         var Optional = latte_1.latte.Optional;
         var LinearIcon = linearicon_1.linearicon.LinearIcon;
+        var MainView = ui_1.ui.MainView;
+        var SplitView = ui_1.ui.SplitView;
+        var Side = latte_1.latte.Side;
+        var ColorView = ui_1.ui.ColorView;
         var Mouse;
         (function (Mouse) {
             Mouse[Mouse["UP"] = 0] = "UP";
@@ -478,8 +482,23 @@ define(["require", "exports", "./ui", "./viewport", "./latte", "./linearicon"], 
                         this.colorSlider,
                         this.testLabel
                     ]);
-                    this.testLabel.description = Optional.of("desc");
                     this.testLabel.icon = Optional.of(LinearIcon.cross);
+                    var a = new SplitView();
+                    a.side = Side.LEFT;
+                    a.wide = 100;
+                    a.sideView = Optional.of(ColorView.fromString('f00'));
+                    var b = new SplitView();
+                    b.side = Side.TOP;
+                    b.wide = 100;
+                    b.sideView = Optional.of(ColorView.fromString('ff0'));
+                    var c = new SplitView();
+                    c.side = Side.LEFT;
+                    c.wide = 100;
+                    c.sideView = Optional.of(ColorView.fromString('0f0'));
+                    a.view = Optional.of(b);
+                    b.view = Optional.of(c);
+                    c.view = Optional.of(ColorView.fromString('00f'));
+                    MainView.instance.view = Optional.of(a);
                     setInterval(function () { return _this.divFps.html = _this.canvas.fps + "fps"; }, 500);
                 }
             };

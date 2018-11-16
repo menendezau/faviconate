@@ -64,7 +64,7 @@ div.slider .value{
 }
 
 .item.label, .item.label * {
-    border: solid 1px red;
+    /*border: solid 1px red;*/
 }
 
 .item.label.with-icon{
@@ -75,7 +75,7 @@ div.slider .value{
 
 .item.label.with-icon > .icon-container{
     min-width: 10px;
-    background: #ff0;
+    /*background: #ff0;*/
 }
 
 .item.label > .desc,
@@ -86,4 +86,43 @@ div.slider .value{
 .item.icon{
     width: 16px;
     height: 16px;
+}
+
+.view{
+    /*background: #ff0;*/
+}
+
+.view,
+.view > .container{
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.view.split > .container{
+    /*background: orange;*/
+}
+
+.view.split > .side-container{
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.view.split > .side-container > .splitter{
+    cursor: ew-resize;
+    position: absolute;
+    background-color: orange;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.view.split > .side-container > .splitter.vertical{
+    cursor: ns-resize;
 }

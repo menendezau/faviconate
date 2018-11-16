@@ -19,6 +19,11 @@ export namespace workspace{
     import Optional = latte.Optional;
     import IconItem = ui.IconItem;
     import LinearIcon = linearicon.LinearIcon;
+    import MainView = ui.MainView;
+    import View = ui.View;
+    import SplitView = ui.SplitView;
+    import Side = latte.Side;
+    import ColorView = ui.ColorView;
 
     /**
      * Mouse related events
@@ -757,8 +762,29 @@ export namespace workspace{
                     this.testLabel
                 ]);
 
-                this.testLabel.description = Optional.of("desc");
+                // this.testLabel.description = Optional.of("desc");
                 this.testLabel.icon = Optional.of(LinearIcon.cross);
+
+                let a = new SplitView();
+                a.side = Side.LEFT;
+                a.wide = 100;
+                a.sideView = Optional.of(ColorView.fromString('f00'));
+
+
+                let b = new SplitView();
+                b.side = Side.TOP;
+                b.wide = 100;
+                b.sideView = Optional.of(ColorView.fromString('ff0'));
+
+                let c = new SplitView();
+                c.side = Side.LEFT;
+                c.wide = 100;
+                c.sideView = Optional.of(ColorView.fromString('0f0'));
+
+                a.view = Optional.of(b);
+                b.view = Optional.of(c);
+                c.view = Optional.of(ColorView.fromString('00f'));
+                MainView.instance.view = Optional.of(a);
 
                 // Update fps every half second
                 setInterval(() => this.divFps.html = `${this.canvas.fps}fps`, 500);

@@ -11,6 +11,13 @@ var __extends = (this && this.__extends) || (function () {
 define(["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    Object.defineProperty(Number.prototype, "px", {
+        get: function () {
+            return this + 'px';
+        },
+        enumerable: false,
+        configurable: true
+    });
     var latte;
     (function (latte) {
         function _camelCase(s) {
@@ -134,6 +141,18 @@ define(["require", "exports"], function (require, exports) {
             return result.join('');
         }
         latte.sprintf = sprintf;
+        var Side;
+        (function (Side) {
+            Side[Side["TOP"] = 0] = "TOP";
+            Side[Side["RIGHT"] = 1] = "RIGHT";
+            Side[Side["BOTTOM"] = 2] = "BOTTOM";
+            Side[Side["LEFT"] = 3] = "LEFT";
+        })(Side = latte.Side || (latte.Side = {}));
+        var Orientation;
+        (function (Orientation) {
+            Orientation[Orientation["VERTICAL"] = 0] = "VERTICAL";
+            Orientation[Orientation["HORIZONTAL"] = 1] = "HORIZONTAL";
+        })(Orientation = latte.Orientation || (latte.Orientation = {}));
         var Eventable = (function () {
             function Eventable() {
                 this.eventHandlers = {};
@@ -145,16 +164,23 @@ define(["require", "exports"], function (require, exports) {
                 this.eventHandlers[eventName].push(handler);
                 return this;
             };
+            Eventable.prototype.onBeforeEvent = function (eventName, params) {
+            };
+            Eventable.prototype.onEvent = function (eventName, params) {
+            };
             Eventable.prototype.raise = function (eventName) {
                 var _this = this;
                 var params = [];
                 for (var _i = 1; _i < arguments.length; _i++) {
                     params[_i - 1] = arguments[_i];
                 }
+                this.onBeforeEvent(eventName, params);
                 if (eventName in this.eventHandlers) {
-                    for (var name_1 in this.eventHandlers)
+                    for (var name_1 in this.eventHandlers) {
                         this.eventHandlers[name_1].forEach(function (f) { return f.apply(_this, params); });
+                    }
                 }
+                this.onEvent(eventName, params);
             };
             return Eventable;
         }());

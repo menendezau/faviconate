@@ -7,19 +7,70 @@ export namespace ui{
     import DidSet = latte.DidSet;
     import Any = latte.Any;
     import Optional = latte.Optional;
+    import Side = latte.Side;
+    import Color = latte.Color;
+    import Rectangle = latte.Rectangle;
+    import log = latte.log;
 
+    /**
+     * Specifies direction of flow of content
+     */
     export enum LanguageDirection{
         AUTO,
         RTL,
         LTR
     }
 
-    interface IRawParams {
-        [key: string]: number;
+    /**
+     * Object that manages the UI lifespan of the mouse while a
+     */
+    export class ClickAndDragOperation extends PropertyTarget{
+
+        //region Fields
+        private readonly moveHandler: (e: MouseEvent) => void;
+        private readonly upHandler: (e: MouseEvent) => void;
+        //endregion
+
+        /**
+         * Creates the operation
+         * @param e
+         */
+        constructor(e: MouseEvent){
+            super();
+
+            this.moveHandler = e => this.mouseMove(e);
+            this.upHandler = e => this.mouseUp(e);
+
+            window.addEventListener('mousemove', this.moveHandler,true);
+            window.addEventListener('mouseup', this.upHandler, true);
+
+            // TODO: support cancel on escape key
+        }
+
+        //region Private Methods
+        private destroy(){
+            window.removeEventListener('mousemove', this.moveHandler, true);
+            window.removeEventListener('mouseup', this.upHandler, true);
+            log(`ClickAndDragDestroyed`);
+        }
+        //endregion
+
+        //region Methods
+        mouseMove(e: MouseEvent){
+            this.raise('mouseMove', e);
+        }
+
+        mouseUp(e: MouseEvent){
+            this.raise('mouseUp', e);
+            this.destroy();
+        }
+        //endregion
+
+
     }
 
     /**
-     *
+     * Animation engine
      */
     export class Animation extends PropertyTarget{
 
@@ -318,7 +369,6 @@ export namespace ui{
 
         //region Private Methods
 
-
         /**
          * Converts the value in css format to a number
          *
@@ -355,8 +405,12 @@ export namespace ui{
          * @param {string} name
          */
         addClass(name: string): this{
-            if(name.indexOf(' ') > 0) {
-                name.split(' ').forEach(token => this.raw.classList.add(token));
+            if(name.indexOf(' ') >= 0) {
+                name.split(' ').forEach(token => {
+                    if(token){
+                        this.raw.classList.add(token)
+                    }
+                });
             }else{
                 this.raw.classList.add(name);
             }
@@ -504,6 +558,15 @@ export namespace ui{
         }
 
         /**
+         * Removes all contents of the element
+         */
+        clear(){
+            while(this.raw.children.length > 0){
+                this.raw.children[0].remove();
+            }
+        }
+
+        /**
          * Makes sure the class is either present or not present in the element
          * @param {string} className
          * @param {boolean} present
@@ -562,8 +625,17 @@ export namespace ui{
          * @returns {this}
          */
         removeClass(name: string): this{
-            this.raw.classList.remove(name);
+            if(name.indexOf(' ') >= 0) {
+                name.split(' ').forEach(token => {
+                    if(token){
+                        this.raw.classList.remove(token)
+                    }
+                });
+            }else{
+                this.raw.classList.remove(name);
+            }
             return this;
+
         }
 
         /**
@@ -608,6 +680,16 @@ export namespace ui{
         get isBeingAnimated(): boolean {
             return this.getPropertyValue('isBeingAnimated', Boolean, false);
         }
+
+        /**
+         * Gets sugar for this.raw.style
+         *
+         * @returns {CSSStyleDeclaration}
+         */
+        get style(): CSSStyleDeclaration {
+            return this.raw.style;
+        }
+
         //endregion
 
     }
@@ -666,6 +748,9 @@ export namespace ui{
 
     }
 
+    /**
+     * Shorthand for UiElement<HTMLDivElement>
+     */
     export class DivElement extends UiElement<HTMLDivElement>{
 
         static withClass(name: string): DivElement{
@@ -683,6 +768,18 @@ export namespace ui{
         }
     }
 
+    /**
+     * Shorthand for UiElement<HTMLInputElement>
+     */
+    export class InputElement extends UiElement<HTMLInputElement>{
+        constructor(e: HTMLInputElement = null){
+            super(e || document.createElement('input'));
+        }
+    }
+
+    /**
+     * Basic Item Pattern
+     */
     export class Item extends DivElement{
         constructor(e: HTMLDivElement | string = null){
             super(e);
@@ -693,21 +790,43 @@ export namespace ui{
         }
     }
 
-    export class InputElement extends UiElement<HTMLInputElement>{
-        constructor(e: HTMLInputElement = null){
-            super(e || document.createElement('input'));
-        }
-    }
-
+    /**
+     * Icon class used around ui library.
+     */
     export class IconItem extends Item{
 
-        constructor(){
+        constructor(size: number = 16){
             super('icon');
 
+            this.size = size;
+        }
+
+        //region Methods
+        /**
+         * Change Handler
+         * @param {latte.ChangedEvent} e
+         */
+        didSet(e: DidSet){
+            super.didSet(e);
+
+            if (e.property == 'size'){
+                this.raw.style.width = this.size.px;
+                this.raw.style.height = this.size.px;
+            }
 
         }
 
+
+        //endregion
+
         //region Properties
+
+        /**
+         * Gets or sets the size of the icon
+         */
+        get size(): number {
+            return this.getPropertyValue('size', Number, 16);
+        }
 
         /**
          * Gets or sets the size of the icon
@@ -721,6 +840,9 @@ export namespace ui{
         //endregion
     }
 
+    /**
+     * Basic label pattern
+     */
     export class LabelItem extends Item{
 
         //region Fields
@@ -1032,7 +1154,7 @@ export namespace ui{
     }
 
     /**
-     * Represents a clickable item
+     * Basic clickable pattern
      */
     export class Clickable extends Item{
 
@@ -1044,6 +1166,9 @@ export namespace ui{
 
     }
 
+    /**
+     * Clickable button
+     */
     export class ButtonItem extends Clickable{
 
         //region Elements
@@ -1060,6 +1185,9 @@ export namespace ui{
 
     }
 
+    /**
+     * Basic selectable pattern
+     */
     export class Selectable extends DivElement{
 
         constructor(){
@@ -1116,6 +1244,436 @@ export namespace ui{
 
     }
 
+    /**
+     * Basic View Pattern
+     */
+    export class View extends DivElement{
+
+        constructor(className: string = ''){
+            super(className + ' view');
+        }
+
+        //region Methods
+        /**
+         * Change Handler
+         * @param {latte.ChangedEvent} e
+         */
+        didSet(e: DidSet){
+            super.didSet(e);
+
+            if (e.property == 'view'){
+
+                if(e.oldValue) {
+                    (e.oldValue as Optional<View>).ifPresent(v => v.removeFromParent());
+                }
+
+                this.container.clear();
+                this.view.ifPresent(v => this.container.add(v));
+            }
+
+        }
+
+        /**
+         * Override.
+         * @param name
+         */
+        onEvent(name: string, args: any[]){
+            super.onEvent(name, args);
+
+            if(name == 'attach') {
+                this.add(this.container);
+            }
+
+        }
+
+        //endregion
+
+        //region Properties
+
+        /**
+         * Gets or sets the inner view of this view
+         */
+        get view(): Optional<View> {
+            return this.getPropertyValue('view', Optional, undefined);
+        }
+
+        /**
+         * Gets or sets the inner view of this view
+         *
+         * @param {Optional<View>} value
+         */
+        set view(value: Optional<View>) {
+            this.setPropertyValue('view', value, Optional);
+        }
+
+        //endregion
+
+        //region Elements
+        /**
+         * Gets the div element
+         */
+        get container(): DivElement {
+            return this.getLazyProperty('container', DivElement, () => {
+                return new DivElement('container');
+            });
+        }
+
+        //endregion
+
+    }
+
+    /**
+     * Singleton abstracting concept of a Main View
+     */
+    export class MainView extends PropertyTarget{
+
+        private static instances = 0;
+        public static instance: MainView = new MainView();
+
+        constructor(){
+            super();
+            if(++MainView.instances > 1) {
+                throw "This class is a singleton";
+            }
+        }
+
+        //region Methods
+
+        /**
+         * Change Handler
+         * @param {latte.ChangedEvent} e
+         */
+        didSet(e: DidSet){
+            super.didSet(e);
+
+            if (e.property == 'view'){
+
+                if(e.oldValue) {
+                    (e.oldValue as Optional<View>).ifPresent(v => v.removeFromParent());
+                }
+
+                this.view.ifPresent(v => {
+                    document.body.appendChild(v.raw);
+                    v.raise('attach');
+                });
+
+            }
+
+        }
+
+        //endregion
+
+        //region Properties
+        /**
+         * Gets or sets the main view of the vieport
+         */
+        get view(): Optional<View> {
+            return this.getPropertyValue('view', Optional, Optional.empty());
+        }
+
+        /**
+         * Gets or sets the main view of the vieport
+         *
+         * @param {Optional<View>} value
+         */
+        set view(value: Optional<View>) {
+            this.setPropertyValue('view', value, Optional);
+        }
+        //endregion
+
+    }
+
+    export class AnchorView extends View{
+
+        constructor(className: string){
+            super(className + ' anchor');
+        }
+
+        //region Private Methods
+        protected updateUi(){
+           let top: string     = null;
+           let left: string    = null;
+           let right: string   = null;
+           let bottom: string  = null;
+           let size = this.wide.px;
+
+            switch(this.side){
+                case Side.TOP: top = size; break;
+                case Side.LEFT: left = size; break;
+                case Side.RIGHT: right = size; break;
+                case Side.BOTTOM: bottom = size; break;
+            }
+
+            this.container.style.top = top;
+            this.container.style.left = left;
+            this.container.style.right = right;
+            this.container.style.bottom = bottom;
+
+        }
+        //endregion
+
+        //region Methods
+
+        /**
+         * Change Handler
+         * @param {latte.ChangedEvent} e
+         */
+        didSet(e: DidSet){
+            super.didSet(e);
+
+            if (e.property == 'side' || e.property == 'wide'){
+                this.updateUi();
+            }
+
+        }
+
+        //endregion
+
+        //region Properties
+
+        /**
+         * Gets or sets the side of the anchored element.
+         */
+        get side(): Side {
+            return this.getPropertyValue('side', Side, Side.TOP);
+        }
+
+        /**
+         * Gets or sets the side of the anchored element.
+         *
+         * @param {Side} value
+         */
+        set side(value: Side) {
+            this.setPropertyValue('side', value, Number);
+        }
+
+        /**
+         * Gets or sets the wide of the anchor space
+         */
+        get wide(): number {
+            return this.getPropertyValue('wide', Number, 20);
+        }
+
+        /**
+         * Gets or sets the wide of the anchor space
+         *
+         * @param {number} value
+         */
+        set wide(value: number) {
+            this.setPropertyValue('wide', value, Number);
+        }
+        //endregion
+
+    }
+
+    /**
+     * Anchor view that allows specifying a view inside of the anchored part.
+     */
+    export class SplitView extends AnchorView{
+
+        constructor(){
+            super('split');
+        }
+
+        //region Private Methods
+        protected splitter_MouseDown(e: any){
+            let d = new ClickAndDragOperation(e as MouseEvent);
+
+            d.on('mouseMove', e => {
+                log(`MouseMove`);
+            });
+
+            d.on('mouseUp', e => {
+                log(`MouseUp`);
+            })
+        };
+
+        protected updateUi(){
+            super.updateUi();
+
+            let container: any = {
+                top: null,
+                left: null,
+                right: null,
+                bottom: null,
+                width: null,
+                height: null
+            };
+            let sideBar: any = {
+                top: null,
+                left: null,
+                right: null,
+                bottom: null,
+                width: null,
+                height: null
+            };
+            let spt: any = {
+                top: null,
+                left: null,
+                right: null,
+                bottom: null,
+                width: null,
+                height: null
+            };
+
+            let size = this.wide.px;
+            let wide = this.splitterWide;
+            let vertical = this.side == Side.TOP || this.side == Side.BOTTOM;
+
+            switch (this.side) {
+                case Side.TOP:
+                    sideBar.bottom = 'auto';
+                    sideBar.height = size;
+                    container.top = size;
+                    spt.top = 'auto';
+                    spt.height = wide;
+                    break;
+                case Side.LEFT:
+                    sideBar.right = 'auto';
+                    sideBar.width = size;
+                    container.left = size;
+                    spt.left = 'auto';
+                    spt.width = wide;
+                    break;
+                case Side.RIGHT:
+                    sideBar.left = 'auto';
+                    sideBar.width = size;
+                    container.right = size;
+                    spt.right = 'auto';
+                    spt.width = wide;
+                    break;
+                case Side.BOTTOM:
+                    sideBar.top = 'auto';
+                    sideBar.height = size;
+                    container.bottom = size;
+                    spt.bottom = 'auto';
+                    spt.height = wide;
+                    break;
+            }
+
+            for(let p in container) this.container.style[p as any] = container[p];
+            for(let p in sideBar) this.sideContainer.style[p as any] = sideBar[p];
+            for(let p in spt) this.splitter.style[p as any] = spt[p];
+
+            this.splitter.ensureClass('vertical', vertical);
+
+
+        }
+        //endregion
+
+        //region Methods
+
+        /**
+         * Change Handler
+         * @param {latte.ChangedEvent} e
+         */
+        didSet(e: DidSet){
+            super.didSet(e);
+
+            if (e.property == 'sideView'){
+                if(e.oldValue) {
+                    (e.oldValue as Optional<View>).ifPresent(v => v.removeFromParent());
+                }
+
+                this.sideContainer.clear();
+                this.sideView.ifPresent(v => this.sideContainer.add(v));
+
+            }
+        }
+
+        /**
+         * Override.
+         * @param name
+         */
+        onEvent(name: string, args: any[]){
+            super.onEvent(name, args);
+
+            if(name == 'attach') {
+                this.add(this.sideContainer);
+                this.sideContainer.add(this.splitter);
+                this.splitter.addEventListener('mousedown', e => this.splitter_MouseDown(e));
+
+            }
+
+        }
+
+        //endregion
+
+        //region Properties
+
+        /**
+         * Gets or sets the side view of this split view
+         */
+        get sideView(): Optional<View> {
+            return this.getPropertyValue('sideView', Optional, undefined);
+        }
+
+        /**
+         * Gets or sets the side view of this split view
+         *
+         * @param {Optional<View>} value
+         */
+        set sideView(value: Optional<View>) {
+            this.setPropertyValue('sideView', value, Optional);
+        }
+
+        /**
+         * Gets or sets the wide of the splitter
+         */
+        get splitterWide(): number {
+            return this.getPropertyValue('splitterWide', Number, 5);
+        }
+
+        /**
+         * Gets or sets the wide of the splitter
+         *
+         * @param {number} value
+         */
+        set splitterWide(value: number) {
+            this.setPropertyValue('splitterWide', value, Number);
+        }
+
+        //endregion
+
+        //region Elements
+
+        /**
+         * Gets the side container
+         */
+        get sideContainer(): DivElement {
+            return this.getLazyProperty('sideContainer', DivElement, () => {
+                return new DivElement('side-container');
+            });
+        }
+
+        /**
+         * Gets the splitter
+         */
+        get splitter(): DivElement {
+            return this.getLazyProperty('splitter', DivElement, () => {
+                return new DivElement('splitter');
+            });
+        }
+
+
+        //endregion
+    }
+
+    export class ColorView extends View{
+
+        static fromString(s: string): ColorView{
+            return new ColorView(Color.fromHex(s));
+        }
+
+        constructor(c: Color){
+            super();
+            this.raw.style.backgroundColor = c.toString();
+        }
+    }
+
+    /**
+     * ListView Pattern
+     */
     export class ListView extends DivElement{
 
         constructor(){
@@ -1123,5 +1681,13 @@ export namespace ui{
         }
 
     }
+
+    /**
+     * Basic Overlay Pattern
+     */
+    export class Overlay extends DivElement{
+
+    }
+
 
 }

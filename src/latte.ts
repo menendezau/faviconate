@@ -1,16 +1,53 @@
-export namespace latte{
 
-    //region Global Methods
-
-    declare interface INumber{
-        MAX_SAFE_INTEGER: number;
-        MIN_SAFE_INTEGER: number;
-        MAX_VALUE: number;
-        MIN_VALUE: number;
-        isSafeInteger(n: number): boolean;
+declare global{
+    interface Number {
+        px: string;
     }
 
-    declare var Number: INumber;
+    interface NumberConstructor {
+        readonly MAX_SAFE_INTEGER: number;
+        readonly MIN_SAFE_INTEGER: number;
+        readonly MAX_VALUE: number;
+        readonly MIN_VALUE: number;
+        isSafeInteger(n: number): boolean;
+    }
+}
+
+
+
+Object.defineProperty((Number as any).prototype, "px", {
+    get: function () {
+        return this + 'px';
+    },
+    enumerable: false,
+    configurable: true
+});
+// alert("implanting");
+
+export namespace latte{
+
+    //region Declarations
+
+    // declare interface NumberConstructor {
+    //     MAX_SAFE_INTEGER: number;
+    //     MIN_SAFE_INTEGER: number;
+    //     MAX_VALUE: number;
+    //     MIN_VALUE: number;
+    // }
+
+    // export declare interface INumber{
+    //     MAX_SAFE_INTEGER: number;
+    //     MIN_SAFE_INTEGER: number;
+    //     MAX_VALUE: number;
+    //     MIN_VALUE: number;
+    //     px: string;
+    //     isSafeInteger(n: number): boolean;
+    // }
+    //
+    // export declare var Number: INumber;
+    //endregion
+
+    //region Global Methods
 
     /**
      * Returns the camel case of the passed string
@@ -196,6 +233,18 @@ export namespace latte{
 
     export type EventHandler = (...any: any[]) => any;
 
+    export enum Side{
+        TOP,
+        RIGHT,
+        BOTTOM,
+        LEFT
+    }
+
+    export enum Orientation{
+        VERTICAL,
+        HORIZONTAL
+    }
+
     /**
      * Base object who supports events
      */
@@ -224,16 +273,41 @@ export namespace latte{
         }
 
         /**
+         * Override this method to catch events on the current class, before the
+         * event chain has been raised.
+         * @param eventName
+         * @param params
+         */
+        onBeforeEvent(eventName: string, params: any[]){
+
+        }
+
+        /**
+         * Override this method to catch events on the current class, once the
+         * event chain has been raised.
+         * @param eventName
+         * @param params
+         */
+        onEvent(eventName: string, params: any[]){
+
+        }
+
+        /**
          * Raises an event
          * @param {string} eventName
          * @param params
          */
         raise(eventName: string, ...params: any[]){
 
+            this.onBeforeEvent(eventName, params);
+
             if(eventName in this.eventHandlers) {
-                for(let name in this.eventHandlers)
+                for(let name in this.eventHandlers) {
                     this.eventHandlers[name].forEach( f => f.apply(this, params));
+                }
             }
+
+            this.onEvent(eventName, params);
 
         }
 
@@ -437,7 +511,6 @@ export namespace latte{
 
             return value;
         }
-
         protected setPropertyUnsafe<T>(name: string, value: T): T{
             this.propertyValues[name] = value;
             return value;
