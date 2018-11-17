@@ -11,6 +11,7 @@ export namespace ui{
     import Color = latte.Color;
     import Rectangle = latte.Rectangle;
     import log = latte.log;
+    import Point = latte.Point;
 
     /**
      * Specifies direction of flow of content
@@ -1409,6 +1410,11 @@ export namespace ui{
             this.container.style.right = right;
             this.container.style.bottom = bottom;
 
+            this.ensureClass('side-top', this.side == Side.TOP);
+            this.ensureClass('side-left', this.side == Side.LEFT);
+            this.ensureClass('side-right', this.side == Side.RIGHT);
+            this.ensureClass('side-bottom', this.side == Side.BOTTOM);
+
         }
         //endregion
 
@@ -1477,14 +1483,30 @@ export namespace ui{
 
         //region Private Methods
         protected splitter_MouseDown(e: any){
-            let d = new ClickAndDragOperation(e as MouseEvent);
+            let me = e as MouseEvent;
+            let d = new ClickAndDragOperation(me);
+            let start = new Point(me.clientX, me.clientY);
+            let startWide = this.wide;
+
 
             d.on('mouseMove', e => {
-                log(`MouseMove`);
+                let me = e as MouseEvent;
+                let diff = 0;
+
+                if(this.side == Side.TOP) {
+                    diff = me.clientY - start.y;
+                }else if(this.side == Side.BOTTOM){
+                    diff = -me.clientY + start.y;
+                }else if(this.side == Side.LEFT){
+                    diff = me.clientX - start.x;
+                }else if(this.side == Side.RIGHT) {
+                    diff = -me.clientX + start.x;
+                }
+                this.wide = startWide + diff;
             });
 
             d.on('mouseUp', e => {
-                log(`MouseUp`);
+                // log(`MouseUp`);
             })
         };
 
@@ -1517,37 +1539,32 @@ export namespace ui{
             };
 
             let size = this.wide.px;
-            let wide = this.splitterWide;
-            let vertical = this.side == Side.TOP || this.side == Side.BOTTOM;
+            let vertical = this.side == Side.LEFT || this.side == Side.RIGHT;
 
             switch (this.side) {
                 case Side.TOP:
                     sideBar.bottom = 'auto';
                     sideBar.height = size;
                     container.top = size;
-                    spt.top = 'auto';
-                    spt.height = wide;
+                    spt.top = size;
                     break;
                 case Side.LEFT:
                     sideBar.right = 'auto';
                     sideBar.width = size;
                     container.left = size;
-                    spt.left = 'auto';
-                    spt.width = wide;
+                    spt.left = size;
                     break;
                 case Side.RIGHT:
                     sideBar.left = 'auto';
                     sideBar.width = size;
                     container.right = size;
-                    spt.right = 'auto';
-                    spt.width = wide;
+                    spt.right = size;
                     break;
                 case Side.BOTTOM:
                     sideBar.top = 'auto';
                     sideBar.height = size;
                     container.bottom = size;
-                    spt.bottom = 'auto';
-                    spt.height = wide;
+                    spt.bottom = size;
                     break;
             }
 
@@ -1556,7 +1573,6 @@ export namespace ui{
             for(let p in spt) this.splitter.style[p as any] = spt[p];
 
             this.splitter.ensureClass('vertical', vertical);
-
 
         }
         //endregion
@@ -1590,7 +1606,7 @@ export namespace ui{
 
             if(name == 'attach') {
                 this.add(this.sideContainer);
-                this.sideContainer.add(this.splitter);
+                this.add(this.splitter);
                 this.splitter.addEventListener('mousedown', e => this.splitter_MouseDown(e));
 
             }

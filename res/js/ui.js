@@ -20,6 +20,7 @@ define(["require", "exports", "./latte"], function (require, exports, latte_1) {
         var Side = latte_1.latte.Side;
         var Color = latte_1.latte.Color;
         var log = latte_1.latte.log;
+        var Point = latte_1.latte.Point;
         var LanguageDirection;
         (function (LanguageDirection) {
             LanguageDirection[LanguageDirection["AUTO"] = 0] = "AUTO";
@@ -910,6 +911,10 @@ define(["require", "exports", "./latte"], function (require, exports, latte_1) {
                 this.container.style.left = left;
                 this.container.style.right = right;
                 this.container.style.bottom = bottom;
+                this.ensureClass('side-top', this.side == Side.TOP);
+                this.ensureClass('side-left', this.side == Side.LEFT);
+                this.ensureClass('side-right', this.side == Side.RIGHT);
+                this.ensureClass('side-bottom', this.side == Side.BOTTOM);
             };
             AnchorView.prototype.didSet = function (e) {
                 _super.prototype.didSet.call(this, e);
@@ -946,12 +951,29 @@ define(["require", "exports", "./latte"], function (require, exports, latte_1) {
                 return _super.call(this, 'split') || this;
             }
             SplitView.prototype.splitter_MouseDown = function (e) {
-                var d = new ClickAndDragOperation(e);
+                var _this = this;
+                var me = e;
+                var d = new ClickAndDragOperation(me);
+                var start = new Point(me.clientX, me.clientY);
+                var startWide = this.wide;
                 d.on('mouseMove', function (e) {
-                    log("MouseMove");
+                    var me = e;
+                    var diff = 0;
+                    if (_this.side == Side.TOP) {
+                        diff = me.clientY - start.y;
+                    }
+                    else if (_this.side == Side.BOTTOM) {
+                        diff = -me.clientY + start.y;
+                    }
+                    else if (_this.side == Side.LEFT) {
+                        diff = me.clientX - start.x;
+                    }
+                    else if (_this.side == Side.RIGHT) {
+                        diff = -me.clientX + start.x;
+                    }
+                    _this.wide = startWide + diff;
                 });
                 d.on('mouseUp', function (e) {
-                    log("MouseUp");
                 });
             };
             ;
@@ -982,36 +1004,31 @@ define(["require", "exports", "./latte"], function (require, exports, latte_1) {
                     height: null
                 };
                 var size = this.wide.px;
-                var wide = this.splitterWide;
-                var vertical = this.side == Side.TOP || this.side == Side.BOTTOM;
+                var vertical = this.side == Side.LEFT || this.side == Side.RIGHT;
                 switch (this.side) {
                     case Side.TOP:
                         sideBar.bottom = 'auto';
                         sideBar.height = size;
                         container.top = size;
-                        spt.top = 'auto';
-                        spt.height = wide;
+                        spt.top = size;
                         break;
                     case Side.LEFT:
                         sideBar.right = 'auto';
                         sideBar.width = size;
                         container.left = size;
-                        spt.left = 'auto';
-                        spt.width = wide;
+                        spt.left = size;
                         break;
                     case Side.RIGHT:
                         sideBar.left = 'auto';
                         sideBar.width = size;
                         container.right = size;
-                        spt.right = 'auto';
-                        spt.width = wide;
+                        spt.right = size;
                         break;
                     case Side.BOTTOM:
                         sideBar.top = 'auto';
                         sideBar.height = size;
                         container.bottom = size;
-                        spt.bottom = 'auto';
-                        spt.height = wide;
+                        spt.bottom = size;
                         break;
                 }
                 for (var p in container)
@@ -1038,7 +1055,7 @@ define(["require", "exports", "./latte"], function (require, exports, latte_1) {
                 _super.prototype.onEvent.call(this, name, args);
                 if (name == 'attach') {
                     this.add(this.sideContainer);
-                    this.sideContainer.add(this.splitter);
+                    this.add(this.splitter);
                     this.splitter.addEventListener('mousedown', function (e) { return _this.splitter_MouseDown(e); });
                 }
             };

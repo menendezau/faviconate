@@ -774,15 +774,22 @@ export namespace workspace{
                 let b = new SplitView();
                 b.side = Side.TOP;
                 b.wide = 100;
-                b.sideView = Optional.of(ColorView.fromString('ff0'));
+                //b.sideView = Optional.of(ColorView.fromString('ff0'));
 
                 let c = new SplitView();
                 c.side = Side.LEFT;
                 c.wide = 100;
                 c.sideView = Optional.of(ColorView.fromString('0f0'));
 
+                let d = new SplitView();
+                d.side = Side.RIGHT;
+                d.wide = 100;
+                d.view = Optional.of(ColorView.fromString('f0f'));
+                d.sideView = Optional.of(ColorView.fromString('0ff'));
+
                 a.view = Optional.of(b);
                 b.view = Optional.of(c);
+                b.sideView = Optional.of(d);
                 c.view = Optional.of(ColorView.fromString('00f'));
                 MainView.instance.view = Optional.of(a);
 
