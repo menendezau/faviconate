@@ -16,4 +16,5 @@ But things are going to change ;)
 - `python -m SimpleHTTPServer 8000` Start a simple web server
 
 Configuring Idea IDE Unit Testing:
-Run > Edit Configuration > Extra mocha options: `--require jsdom-global/register`
+Run > Edit Configuration > Extra mocha options: 
+`--require ts-node/register --require jsdom-global/register`
